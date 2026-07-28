@@ -44,6 +44,14 @@ class FPLElementHistory(BaseModel):
     creativity: str = "0.0"
     threat: str = "0.0"
     ict_index: str = "0.0"
+    expected_goals: str = "0.0"
+    expected_assists: str = "0.0"
+    expected_goal_involvements: str = "0.0"
+    expected_goals_conceded: str = "0.0"
+    starts: int | None = None
+    """1 if the player started the match, 0 otherwise. Newer FPL seasons
+    include this explicitly; older ones don't, so it's optional and the
+    ingestion layer falls back to a minutes-played heuristic when absent."""
     value: int
     """Player price at the time of this gameweek, in tenths of a million."""
 

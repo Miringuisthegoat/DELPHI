@@ -9,3 +9,94 @@
 2026-07-28 12:44:10.327 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
 2026-07-28 12:44:10.329 | INFO     | app.main:lifespan:24 - Starting FPL Oracle AI [development]
 2026-07-28 12:45:12.023 | INFO     | app.main:lifespan:26 - Shutting down FPL Oracle AI
+2026-07-28 21:09:17.564 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-28 21:09:17.580 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-28 21:09:18.390 | INFO     | __main__:run:27 - Fetching bootstrap-static and fixtures from the FPL API...
+2026-07-28 21:09:19.497 | ERROR    | __main__:main:84 - Sync failed: Response for bootstrap-static did not match expected schema: 20 validation errors for FPLBootstrapStatic
+teams.0.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.1.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.2.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.3.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.4.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.5.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.6.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.7.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.8.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.9.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.10.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.11.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.12.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.13.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.14.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.15.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.16.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.17.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.18.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+teams.19.strength
+  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/int_type
+2026-07-28 21:19:57.394 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-28 21:19:57.407 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-28 21:19:57.923 | INFO     | __main__:run:27 - Fetching bootstrap-static and fixtures from the FPL API...
+2026-07-28 21:20:00.481 | INFO     | app.services.ingestion.service:sync_teams:120 - Team sync complete: 20 created, 0 updated, 0 failed
+2026-07-28 21:20:01.075 | INFO     | app.services.ingestion.service:sync_players:167 - Player sync complete: 563 created, 0 updated, 0 failed
+2026-07-28 21:20:01.519 | INFO     | app.services.ingestion.service:sync_fixtures:202 - Fixture sync complete: 380 created, 0 updated, 0 failed
+2026-07-28 21:20:01.520 | INFO     | app.services.ingestion.service:sync_full_bootstrap:350 - Full bootstrap sync complete in 1.13s: 20 teams, 563 players, 380 fixtures processed
+2026-07-28 21:20:01.533 | INFO     | __main__:run:33 - Bootstrap sync done in 1.13s: 20 teams, 563 players, 380 fixtures (0 failures)
+2026-07-28 21:20:01.537 | INFO     | __main__:main:87 - Sync complete.
+2026-07-28 21:40:08.180 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-28 21:40:08.189 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-28 21:40:08.688 | INFO     | __main__:run:27 - Fetching bootstrap-static and fixtures from the FPL API...
+2026-07-28 21:40:11.513 | INFO     | app.services.ingestion.service:sync_teams:120 - Team sync complete: 0 created, 20 updated, 0 failed
+2026-07-28 21:40:12.229 | INFO     | app.services.ingestion.service:sync_players:167 - Player sync complete: 0 created, 563 updated, 0 failed
+2026-07-28 21:40:12.599 | INFO     | app.services.ingestion.service:sync_fixtures:202 - Fixture sync complete: 0 created, 380 updated, 0 failed
+2026-07-28 21:40:12.599 | INFO     | app.services.ingestion.service:sync_full_bootstrap:350 - Full bootstrap sync complete in 1.16s: 20 teams, 563 players, 380 fixtures processed
+2026-07-28 21:40:12.611 | INFO     | __main__:run:33 - Bootstrap sync done in 1.16s: 20 teams, 563 players, 380 fixtures (0 failures)
+2026-07-28 21:40:12.615 | INFO     | __main__:main:87 - Sync complete.
+2026-07-28 21:49:50.897 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-28 21:49:50.919 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-28 21:49:51.555 | INFO     | __main__:run:27 - Fetching bootstrap-static and fixtures from the FPL API...
+2026-07-28 21:49:54.740 | INFO     | app.services.ingestion.service:sync_teams:120 - Team sync complete: 0 created, 20 updated, 0 failed
+2026-07-28 21:49:55.396 | INFO     | app.services.ingestion.service:sync_players:167 - Player sync complete: 0 created, 563 updated, 0 failed
+2026-07-28 21:49:56.117 | INFO     | app.services.ingestion.service:sync_fixtures:202 - Fixture sync complete: 0 created, 380 updated, 0 failed
+2026-07-28 21:49:56.117 | INFO     | app.services.ingestion.service:sync_full_bootstrap:350 - Full bootstrap sync complete in 1.47s: 20 teams, 563 players, 380 fixtures processed
+2026-07-28 21:49:56.128 | INFO     | __main__:run:33 - Bootstrap sync done in 1.47s: 20 teams, 563 players, 380 fixtures (0 failures)
+2026-07-28 21:49:56.135 | INFO     | __main__:main:87 - Sync complete.

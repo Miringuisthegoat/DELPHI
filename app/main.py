@@ -14,14 +14,16 @@ from loguru import logger
 from app.core.config import settings
 from app.core.exceptions import FplOracleError
 from app.core.logging import configure_logging
-from app.api.v1.endpoints import fpl
+from app.db.session import init_db
+from app.api.v1.endpoints import fpl, sync
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup/shutdown hooks. DB init and scheduler wiring land here in later phases."""
+    """Startup/shutdown hooks. Scheduler wiring lands here in a later phase."""
     configure_logging()
     logger.info(f"Starting {settings.app_name} [{settings.app_env}]")
+    init_db()
     yield
     logger.info("Shutting down FPL Oracle AI")
 
@@ -34,6 +36,7 @@ app = FastAPI(
 )
 
 app.include_router(fpl.router, prefix="/api/v1/fpl", tags=["fpl-integration"])
+app.include_router(sync.router, prefix="/api/v1/sync", tags=["data-ingestion"])
 
 
 @app.exception_handler(FplOracleError)

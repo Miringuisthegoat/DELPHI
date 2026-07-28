@@ -34,13 +34,19 @@ class FPLTeam(BaseModel):
     id: int
     name: str
     short_name: str
-    strength: int
-    strength_overall_home: int
-    strength_overall_away: int
-    strength_attack_home: int
-    strength_attack_away: int
-    strength_defence_home: int
-    strength_defence_away: int
+
+    strength: int | None = None
+    strength_overall_home: int | None = None
+    strength_overall_away: int | None = None
+    strength_attack_home: int | None = None
+    strength_attack_away: int | None = None
+    strength_defence_home: int | None = None
+    strength_defence_away: int | None = None
+    """All ``strength_*`` fields are nulled out by FPL during preseason,
+    before fixtures/results exist to base a rating on. They populate once
+    the season is underway. Downstream consumers (ingestion service) must
+    supply a neutral fallback rather than assume these are always present."""
+
     played: int = 0
     win: int = 0
     draw: int = 0
@@ -106,6 +112,11 @@ class FPLPlayer(BaseModel):
 
     cost_change_start: int = 0
     cost_change_event: int = 0
+    transfers_in_event: int = 0
+    transfers_out_event: int = 0
+    """Transfers in/out *since the last gameweek deadline*, used as a
+    short-term momentum signal (see `Player.price_trend`)."""
+
 
     selected_by_percent: str
     """FPL returns this as a string, e.g. "34.5" — cast to float downstream."""
@@ -188,3 +199,4 @@ class FPLBootstrapStatic(BaseModel):
     element_types: list[FPLElementType]
     elements: list[FPLPlayer]
     game_settings: FPLGameSettings
+    

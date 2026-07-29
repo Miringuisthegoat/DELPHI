@@ -57,6 +57,31 @@ class Settings(BaseSettings):
     data_dir: Path = Field(default=Path("./data"))
     log_dir: Path = Field(default=Path("./logs"))
 
+    # --- Phase 5: DELPHI prediction engine ---
+    ml_model_dir: Path = Field(
+        default=Path("./data/processed/models"),
+        description="Where trained model artifacts (joblib) and metadata are persisted.",
+    )
+    ml_min_samples_for_training: int = Field(
+        default=200,
+        description=(
+            "Minimum (player, gameweek) training rows required before "
+            "DELPHI will train/trust a Random Forest model. Below this "
+            "(e.g. preseason, or the first few gameweeks of a new season) "
+            "the engine falls back to the transparent heuristic predictor."
+        ),
+    )
+    ml_rf_n_estimators: int = Field(default=300)
+    ml_rf_max_depth: int | None = Field(default=10)
+    ml_rf_min_samples_leaf: int = Field(default=3)
+    ml_random_state: int = Field(default=42)
+    ml_default_horizons: tuple[int, ...] = Field(default=(1, 3, 5))
+    ml_model_name: str = Field(
+        default="delphi",
+        description="Base identifier stored on Prediction.model_name (suffixed with _heuristic or _rf).",
+    )
+    ml_model_version: str = Field(default="1.0.0")
+
     @property
     def is_sqlite(self) -> bool:
         return self.database_url.startswith("sqlite")
@@ -67,6 +92,7 @@ class Settings(BaseSettings):
         (self.data_dir / "raw").mkdir(parents=True, exist_ok=True)
         (self.data_dir / "processed").mkdir(parents=True, exist_ok=True)
         self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.ml_model_dir.mkdir(parents=True, exist_ok=True)
 
 
 @lru_cache

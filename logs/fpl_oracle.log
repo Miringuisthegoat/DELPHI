@@ -100,3 +100,48 @@ teams.19.strength
 2026-07-28 21:49:56.117 | INFO     | app.services.ingestion.service:sync_full_bootstrap:350 - Full bootstrap sync complete in 1.47s: 20 teams, 563 players, 380 fixtures processed
 2026-07-28 21:49:56.128 | INFO     | __main__:run:33 - Bootstrap sync done in 1.47s: 20 teams, 563 players, 380 fixtures (0 failures)
 2026-07-28 21:49:56.135 | INFO     | __main__:main:87 - Sync complete.
+2026-07-29 13:59:50.729 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-29 13:59:50.751 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-29 14:01:14.999 | INFO     | app.ml.engine:generate_for_gameweek:198 - DELPHI generated predictions for gw 8 (563 players x 3 horizons) using the heuristic model: 1689 created, 0 updated
+2026-07-29 14:01:15.027 | INFO     | __main__:main:63 - Generated predictions for gw 8 using the 'heuristic' model: 563 players, 1689 created, 0 updated
+2026-07-29 14:01:36.694 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-29 14:01:36.739 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-29 14:02:44.881 | INFO     | app.ml.engine:generate_for_gameweek:198 - DELPHI generated predictions for gw 8 (563 players x 3 horizons) using the heuristic model: 0 created, 1689 updated
+2026-07-29 14:02:44.885 | INFO     | __main__:main:63 - Generated predictions for gw 8 using the 'heuristic' model: 563 players, 0 created, 1689 updated
+2026-07-29 14:05:06.084 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-29 14:05:06.106 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-29 14:05:48.256 | INFO     | app.ml.engine:generate_for_gameweek:198 - DELPHI generated predictions for gw 8 (563 players x 3 horizons) using the heuristic model: 0 created, 1689 updated
+2026-07-29 14:05:48.258 | INFO     | __main__:main:63 - Generated predictions for gw 8 using the 'heuristic' model: 563 players, 0 created, 1689 updated
+2026-07-29 14:18:42.574 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-29 14:18:42.595 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-29 14:18:42.644 | WARNING  | __main__:main:44 - Optimization skipped: No squad state found at or before gameweek 8. Sync 'my squad' before requesting an optimization.
+2026-07-30 12:41:28.074 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-30 12:41:28.084 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-30 12:42:32.494 | INFO     | app.ml.engine:generate_for_gameweek:198 - DELPHI generated predictions for gw 8 (563 players x 3 horizons) using the heuristic model: 0 created, 1689 updated
+2026-07-30 12:42:32.497 | INFO     | __main__:main:63 - Generated predictions for gw 8 using the 'heuristic' model: 563 players, 0 created, 1689 updated
+2026-07-30 12:42:34.612 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-30 12:42:34.622 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-30 12:42:34.699 | WARNING  | __main__:main:44 - Optimization skipped: No squad state found at or before gameweek 8. Sync 'my squad' before requesting an optimization.
+2026-07-30 12:42:36.527 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-30 12:42:36.538 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-30 12:42:36.627 | WARNING  | __main__:main:44 - Optimization skipped: No squad state found at or before gameweek 8. Sync 'my squad' before requesting an optimization.
+2026-07-30 13:05:46.346 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-30 13:05:46.381 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-30 13:05:46.535 | WARNING  | __main__:main:44 - Optimization skipped: No squad state found at or before gameweek 1. Sync 'my squad' before requesting an optimization.
+2026-07-30 13:11:46.061 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-30 13:11:46.099 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-30 13:13:09.069 | INFO     | app.ml.engine:generate_for_gameweek:198 - DELPHI generated predictions for gw 8 (563 players x 3 horizons) using the heuristic model: 0 created, 1689 updated
+2026-07-30 13:13:09.073 | INFO     | __main__:main:63 - Generated predictions for gw 8 using the 'heuristic' model: 563 players, 0 created, 1689 updated
+2026-07-30 13:13:14.653 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-30 13:13:14.684 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-30 13:13:14.809 | WARNING  | __main__:main:44 - Optimization skipped: No squad state found at or before gameweek 8. Sync 'my squad' before requesting an optimization.
+2026-07-30 13:13:18.560 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-30 13:13:18.584 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-30 13:13:18.718 | WARNING  | __main__:main:44 - Optimization skipped: No squad state found at or before gameweek 8. Sync 'my squad' before requesting an optimization.
+2026-07-30 13:13:29.245 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-30 13:13:29.265 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-30 13:14:41.703 | INFO     | app.ml.engine:generate_for_gameweek:198 - DELPHI generated predictions for gw 8 (563 players x 3 horizons) using the heuristic model: 0 created, 1689 updated
+2026-07-30 13:14:41.706 | INFO     | __main__:main:63 - Generated predictions for gw 8 using the 'heuristic' model: 563 players, 0 created, 1689 updated
+2026-07-30 13:14:47.952 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-07-30 13:14:48.004 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-07-30 13:14:48.142 | WARNING  | __main__:main:44 - Optimization skipped: No squad state found at or before gameweek 8. Sync 'my squad' before requesting an optimization.

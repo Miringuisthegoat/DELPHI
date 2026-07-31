@@ -33,6 +33,8 @@ ortools==9.15.6755
 apscheduler==3.11.0
 
 # --- Frontend (Phase 8) ---
+jinja2==3.1.5
+python-multipart==0.0.20
 streamlit==1.50.0
 plotly==5.24.1
 

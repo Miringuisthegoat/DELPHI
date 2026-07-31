@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
 from app.core.config import settings
@@ -16,6 +17,7 @@ from app.core.exceptions import FplOracleError
 from app.core.logging import configure_logging
 from app.db.session import init_db
 from app.api.v1.endpoints import fpl, optimization, predictions, squad, sync
+from app.web import routes as dashboard_routes
 
 
 @asynccontextmanager
@@ -45,6 +47,10 @@ app.include_router(
 )
 app.include_router(squad.router, prefix="/api/v1/squad", tags=["squad-management"])
 
+# Phase 8: dashboard (HTML, not JSON) + its static assets.
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.include_router(dashboard_routes.router, tags=["dashboard"])
+
 
 @app.exception_handler(FplOracleError)
 async def fpl_oracle_error_handler(request, exc: FplOracleError):
@@ -55,8 +61,8 @@ async def fpl_oracle_error_handler(request, exc: FplOracleError):
 
 @app.get("/", tags=["health"])
 async def root() -> dict:
-    """Basic root endpoint."""
-    return {"app": settings.app_name, "status": "ok"}
+    """Basic root endpoint. See /dashboard for the DELPHI UI."""
+    return {"app": settings.app_name, "status": "ok", "dashboard": "/dashboard"}
 
 
 @app.get("/health", tags=["health"])

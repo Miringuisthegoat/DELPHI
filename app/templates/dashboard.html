@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}DELPHI — Gameweek {{ view.gameweek }}{% endblock %}
+
+{% block content %}
+
+<header class="hero">
+  <div>
+    <h1>DELPHI Dashboard</h1>
+    <p class="subtitle">Gameweek {{ view.gameweek }} · generated {{ view.generated_at.strftime("%Y-%m-%d %H:%M UTC") }}</p>
+  </div>
+  <form class="gw-form" method="get" action="/dashboard">
+    <label for="gameweek">GW</label>
+    <input type="number" id="gameweek" name="gameweek" min="1" max="38" value="{{ view.gameweek }}" />
+    <button class="btn btn-pink" type="submit">Load</button>
+  </form>
+</header>
+
+{% if not view.has_squad %}
+
+  <div class="panel accent-orange">
+    <div class="panel-header"><h2>No Squad Synced</h2></div>
+    <div class="panel-body">
+      <div class="empty-state">{{ view.optimization_error }}</div>
+    </div>
+  </div>
+
+{% else %}
+
+  <section class="stat-grid">
+    <div class="stat-card pink">
+      <div class="label">Projected Points</div>
+      <div class="value">{{ "%.1f"|format(view.projected_points) }}</div>
+    </div>
+    <div class="stat-card cyan">
+      <div class="label">Bank</div>
+      <div class="value">£{{ "%.1f"|format(view.bank_millions) }}m</div>
+    </div>
+    <div class="stat-card green">
+      <div class="label">Squad Value</div>
+      <div class="value">£{{ "%.1f"|format(view.squad_value_millions) }}m</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="label">Free Transfers</div>
+      <div class="value">{{ view.free_transfers }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Total Points</div>
+      <div class="value">{{ view.total_points }}</div>
+    </div>
+    {% if view.overall_rank %}
+    <div class="stat-card">
+      <div class="label">Overall Rank</div>
+      <div class="value">{{ "{:,}".format(view.overall_rank) }}</div>
+    </div>
+    {% endif %}
+  </section>
+
+  {% if not view.has_predictions %}
+    <div class="panel accent-orange">
+      <div class="panel-header"><h2>Predictions Not Generated Yet</h2></div>
+      <div class="panel-body">
+        <div class="empty-state">{{ view.optimization_error }}</div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Captain / Vice Captain -->
+  {% if view.captain %}
+  <div class="panel accent-yellow">
+    <div class="panel-header"><h2>Captaincy</h2></div>
+    <div class="panel-body">
+      <div class="stat-grid" style="margin-bottom:0;">
+        <div class="stat-card green">
+          <div class="label">Captain (C)</div>
+          <div class="value">{{ view.captain.web_name }}</div>
+        </div>
+        {% if view.vice_captain %}
+        <div class="stat-card cyan">
+          <div class="label">Vice Captain (VC)</div>
+          <div class="value">{{ view.vice_captain.web_name }}</div>
+        </div>
+        {% endif %}
+      </div>
+      <div class="reasoning-box">{{ view.captain.reasoning }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Transfer Suggestion -->
+  <div class="panel accent-pink">
+    <div class="panel-header"><h2>Transfer Suggestion</h2></div>
+    <div class="panel-body">
+      {% if view.optimization %}
+        {% set rec = view.optimization.recommended %}
+        {% if rec.transfers == 0 %}
+          <p><strong>Hold your squad.</strong> No affordable swap beats what you already own this week.</p>
+        {% else %}
+          {% for out_p in rec.players_out %}
+          <div class="transfer-move">
+            <span class="badge badge-{{ out_p.position|lower }}">{{ out_p.position }}</span>
+            {{ out_p.web_name }} (£{{ "%.1f"|format(out_p.price_millions) }}m)
+            <span class="transfer-arrow">&rarr;</span>
+            {% if rec.players_in[loop.index0] is defined %}
+              {% set in_p = rec.players_in[loop.index0] %}
+              <span class="badge badge-{{ in_p.position|lower }}">{{ in_p.position }}</span>
+              {{ in_p.web_name }} (£{{ "%.1f"|format(in_p.price_millions) }}m)
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% endif %}
+        <div class="reasoning-box">{{ rec.reasoning }}</div>
+
+        <div class="options-grid">
+          {% for option in view.optimization.options %}
+          <div class="option-card {% if option.transfers == rec.transfers %}recommended{% endif %}">
+            <div class="label" style="font-family: var(--font-mono); font-size:0.72rem; text-transform:uppercase;">
+              {{ option.transfers }} transfer{{ "s" if option.transfers != 1 else "" }}
+            </div>
+            {% if option.feasible %}
+              <div class="net {{ 'negative' if option.net_expected_gain < 0 else '' }}">
+                {{ "%+.1f"|format(option.net_expected_gain) }} pts
+              </div>
+              {% if option.hit_cost %}
+                <div style="font-family: var(--font-mono); font-size:0.78rem;">
+                  incl. -{{ option.hit_cost }} pt hit
+                </div>
+              {% endif %}
+            {% else %}
+              <div style="font-family: var(--font-mono); font-size:0.8rem;">infeasible</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">{{ view.optimization_error }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Injury Alerts -->
+  {% if view.injury_alerts %}
+  <div class="panel accent-orange">
+    <div class="panel-header"><h2>Injury / Availability Alerts</h2></div>
+    <div class="panel-body">
+      <table>
+        <thead>
+          <tr><th>Player</th><th>Status</th><th>Chance Next GW</th><th>News</th></tr>
+        </thead>
+        <tbody>
+          {% for alert in view.injury_alerts %}
+          <tr class="injury-row">
+            <td>{{ alert.web_name }}</td>
+            <td><span class="badge badge-status-{{ alert.status }}">{{ alert.status }}</span></td>
+            <td>{{ alert.chance_of_playing_next_round if alert.chance_of_playing_next_round is not none else "—" }}{{ "%" if alert.chance_of_playing_next_round is not none else "" }}</td>
+            <td>{{ alert.news or "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Squad table -->
+  <div class="panel accent-cyan">
+    <div class="panel-header"><h2>My Squad</h2></div>
+    <div class="panel-body">
+      <table>
+        <thead>
+          <tr>
+            <th>Pos</th><th>Player</th><th>Club</th><th>Price</th>
+            <th>Predicted (GW{{ view.gameweek }})</th><th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in view.squad_rows %}
+          <tr class="{{ 'bench-row' if not row.is_starting else '' }} {{ 'injury-row' if row.status != 'a' else '' }}">
+            <td><span class="badge badge-{{ row.position|lower }}">{{ row.position }}</span></td>
+            <td>
+              {{ row.web_name }}
+              {% if row.is_captain %}<span class="crown" title="Captain">©</span>{% endif %}
+              {% if row.is_vice_captain %}<span class="crown" title="Vice Captain">(VC)</span>{% endif %}
+            </td>
+            <td>{{ row.team_short_name }}</td>
+            <td>£{{ "%.1f"|format(row.price_millions) }}m</td>
+            <td>{{ "%.1f"|format(row.predicted_points) if row.predicted_points is not none else "—" }}</td>
+            <td>{{ "Starting" if row.is_starting else "Bench " ~ (row.bench_position or "") }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Fixture ticker -->
+  {% if view.fixture_ticker %}
+  <div class="panel accent-green">
+    <div class="panel-header"><h2>Fixture Ticker</h2></div>
+    <div class="panel-body">
+      {% set teams_seen = [] %}
+      {% for entry in view.fixture_ticker %}
+        {% if entry.team_short_name not in teams_seen %}
+          {% if teams_seen %}</div>{% endif %}
+          {% set _ = teams_seen.append(entry.team_short_name) %}
+          <div class="ticker-team-block">
+          <h3>{{ entry.team_short_name }}</h3>
+          <div class="ticker-row">
+        {% endif %}
+        <span class="fdr fdr-{{ entry.difficulty }}" title="GW{{ entry.gameweek }} {{ 'vs' if entry.is_home else '@' }} {{ entry.opponent_short_name }}">
+          {{ entry.opponent_short_name }}{{ "(H)" if entry.is_home else "(A)" }}
+        </span>
+      {% endfor %}
+      {% if teams_seen %}</div></div>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+{% endif %}
+
+{% endblock %}

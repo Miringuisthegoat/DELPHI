@@ -15,7 +15,7 @@ from app.core.config import settings
 from app.core.exceptions import FplOracleError
 from app.core.logging import configure_logging
 from app.db.session import init_db
-from app.api.v1.endpoints import fpl, optimization, predictions, sync
+from app.api.v1.endpoints import fpl, optimization, predictions, squad, sync
 
 
 @asynccontextmanager
@@ -43,6 +43,7 @@ app.include_router(
 app.include_router(
     optimization.router, prefix="/api/v1/optimization", tags=["transfer-optimizer"]
 )
+app.include_router(squad.router, prefix="/api/v1/squad", tags=["squad-management"])
 
 
 @app.exception_handler(FplOracleError)

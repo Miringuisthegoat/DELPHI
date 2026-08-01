@@ -16,17 +16,20 @@ from app.core.config import settings
 from app.core.exceptions import FplOracleError
 from app.core.logging import configure_logging
 from app.db.session import init_db
-from app.api.v1.endpoints import fpl, optimization, predictions, squad, sync
+from app.api.v1.endpoints import fpl, optimization, predictions, reports, squad, sync
+from app.scheduler.jobs import start_scheduler, stop_scheduler
 from app.web import routes as dashboard_routes
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup/shutdown hooks. Scheduler wiring lands here in a later phase."""
+    """Startup/shutdown hooks."""
     configure_logging()
     logger.info(f"Starting {settings.app_name} [{settings.app_env}]")
     init_db()
+    start_scheduler()
     yield
+    stop_scheduler()
     logger.info("Shutting down FPL Oracle AI")
 
 
@@ -46,6 +49,7 @@ app.include_router(
     optimization.router, prefix="/api/v1/optimization", tags=["transfer-optimizer"]
 )
 app.include_router(squad.router, prefix="/api/v1/squad", tags=["squad-management"])
+app.include_router(reports.router, prefix="/api/v1/reports", tags=["weekly-reporting"])
 
 # Phase 8: dashboard (HTML, not JSON) + its static assets.
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -72,4 +76,5 @@ async def health() -> dict:
         "status": "healthy",
         "env": settings.app_env,
         "database": "sqlite" if settings.is_sqlite else "postgresql",
+        "scheduler_enabled": settings.enable_scheduler,
     }

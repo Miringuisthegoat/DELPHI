@@ -236,3 +236,15 @@ teams.19.strength
 2026-07-31 17:07:21.189 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
 2026-07-31 17:07:21.435 | INFO     | __main__:seed_fake_squad:163 - Seeded fake squad for gw 1: 15 players, bank=36.0m, squad_value=64.0m
 2026-07-31 17:07:21.453 | INFO     | __main__:main:190 - Done. View it at http://127.0.0.1:8000/dashboard?gameweek=1
+2026-08-01 08:22:03.494 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-01 08:22:03.497 | INFO     | app.main:lifespan:27 - Starting D.E.L.P.H.I [development]
+2026-08-01 08:22:03.599 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-01 08:22:13.214 | INFO     | app.main:lifespan:30 - Shutting down FPL Oracle AI
+2026-08-01 08:22:22.448 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-01 08:22:22.449 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-01 08:22:22.467 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-01 08:22:22.467 | INFO     | app.scheduler.jobs:start_scheduler:95 - Scheduler disabled (ENABLE_SCHEDULER=false) - skipping.
+2026-08-01 08:24:42.219 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-01 08:24:42.220 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-01 08:24:42.233 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-01 08:24:42.234 | INFO     | app.scheduler.jobs:start_scheduler:95 - Scheduler disabled (ENABLE_SCHEDULER=false) - skipping.

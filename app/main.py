@@ -16,7 +16,7 @@ from app.core.config import settings
 from app.core.exceptions import FplOracleError
 from app.core.logging import configure_logging
 from app.db.session import init_db
-from app.api.v1.endpoints import fpl, optimization, predictions, reports, squad, sync
+from app.api.v1.endpoints import fpl, optimization, pipeline, predictions, reports, squad, sync
 from app.scheduler.jobs import start_scheduler, stop_scheduler
 from app.web import routes as dashboard_routes
 
@@ -50,6 +50,7 @@ app.include_router(
 )
 app.include_router(squad.router, prefix="/api/v1/squad", tags=["squad-management"])
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["weekly-reporting"])
+app.include_router(pipeline.router, prefix="/api/v1/pipeline", tags=["weekly-pipeline"])
 
 # Phase 8: dashboard (HTML, not JSON) + its static assets.
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

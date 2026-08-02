@@ -248,3 +248,13 @@ teams.19.strength
 2026-08-01 08:24:42.220 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
 2026-08-01 08:24:42.233 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
 2026-08-01 08:24:42.234 | INFO     | app.scheduler.jobs:start_scheduler:95 - Scheduler disabled (ENABLE_SCHEDULER=false) - skipping.
+2026-08-02 15:37:29.730 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-02 15:37:29.732 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-02 15:37:29.763 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-02 15:37:29.765 | INFO     | app.scheduler.jobs:start_scheduler:95 - Scheduler disabled (ENABLE_SCHEDULER=false) - skipping.
+2026-08-02 15:37:44.131 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-02 15:37:44.133 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-02 15:37:44.175 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-02 15:37:44.179 | INFO     | app.scheduler.jobs:start_scheduler:95 - Scheduler disabled (ENABLE_SCHEDULER=false) - skipping.
+2026-08-02 16:00:31.645 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-02 16:00:34.198 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'

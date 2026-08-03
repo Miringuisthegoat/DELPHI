@@ -3,17 +3,30 @@
 
 {% block content %}
 
-<header class="hero">
+<div class="topbar">
+  <div class="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="7"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <input type="text" placeholder="Find a player, fixture, or setting…" />
+    <span class="gw-badge">GW {{ view.gameweek }}</span>
+  </div>
+  <div class="icon-btn" title="Notifications">&#128276;</div>
+  <div class="avatar">D</div>
+</div>
+
+<div class="page-title">
   <div>
-    <h1>DELPHI Dashboard</h1>
+    <h1>Trainer Info: Your Squad</h1>
     <p class="subtitle">Gameweek {{ view.gameweek }} · generated {{ view.generated_at.strftime("%Y-%m-%d %H:%M UTC") }}</p>
   </div>
   <form class="gw-form" method="get" action="/dashboard">
-    <label for="gameweek">GW</label>
+    <label for="gameweek" class="subtitle" style="font-family: var(--font-mono); font-weight:700;">GW</label>
     <input type="number" id="gameweek" name="gameweek" min="1" max="38" value="{{ view.gameweek }}" />
-    <button class="btn btn-pink" type="submit">Load</button>
+    <button class="btn" type="submit">Load</button>
   </form>
-</header>
+</div>
 
 {% if not view.has_squad %}
 
@@ -113,7 +126,7 @@
         <div class="options-grid">
           {% for option in view.optimization.options %}
           <div class="option-card {% if option.transfers == rec.transfers %}recommended{% endif %}">
-            <div class="label" style="font-family: var(--font-mono); font-size:0.72rem; text-transform:uppercase;">
+            <div class="label" style="font-family: var(--font-mono); font-size:0.72rem; font-weight:700; text-transform:uppercase; margin-bottom:6px;">
               {{ option.transfers }} transfer{{ "s" if option.transfers != 1 else "" }}
             </div>
             {% if option.feasible %}
@@ -163,7 +176,10 @@
 
   <!-- Squad table -->
   <div class="panel accent-cyan">
-    <div class="panel-header"><h2>My Squad</h2></div>
+    <div class="panel-header">
+      <h2>My Squad</h2>
+      <a class="view-all" href="/api/v1/squad/{{ view.gameweek }}">View all &rarr;</a>
+    </div>
     <div class="panel-body">
       <table>
         <thead>

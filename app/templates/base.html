@@ -4,14 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}DELPHI Dashboard{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
-  <div class="page">
-    {% block content %}{% endblock %}
-    <footer class="page-footer">
-      DELPHI — Data-driven Expected League Performance using Hybrid Intelligence · FPL Oracle
-    </footer>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">&Delta;</div>
+      <nav>
+        <a class="nav-item active" href="/dashboard" title="Dashboard">&#9670;</a>
+        <a class="nav-item" href="/api/v1/predictions/1" title="Predictions">&#9711;</a>
+        <a class="nav-item" href="/api/v1/optimization/optimize/1" title="Transfers">&#8646;</a>
+        <a class="nav-item" href="/api/v1/squad/1" title="Squad">&#9787;</a>
+        <a class="nav-item" href="/api/v1/reports/1" title="Reports">&#9776;</a>
+      </nav>
+      <div class="nav-foot">
+        <a class="nav-item" href="/health" title="Settings">&#9881;</a>
+      </div>
+    </aside>
+
+    <main class="panel-shell">
+      {% block content %}{% endblock %}
+      <footer class="page-footer">
+        DELPHI — Data-driven Expected League Performance using Hybrid Intelligence · FPL Oracle
+      </footer>
+    </main>
   </div>
 </body>
 </html>

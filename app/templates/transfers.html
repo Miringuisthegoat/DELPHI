@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}DELPHI — Transfers{% endblock %}
+
+{% block content %}
+
+<div class="page-title">
+  <div>
+    <h1>Transfer Suggestions</h1>
+    <p class="subtitle">Gameweek {{ view.gameweek }} · generated {{ view.generated_at.strftime("%Y-%m-%d %H:%M UTC") }}</p>
+  </div>
+  <form class="gw-form" method="get" action="/transfers">
+    <label for="gameweek" class="subtitle" style="font-family: var(--font-mono); font-weight:700;">GW</label>
+    <input type="number" id="gameweek" name="gameweek" min="1" max="38" value="{{ view.gameweek }}" />
+    <button class="btn" type="submit">Load</button>
+  </form>
+</div>
+
+{% if not view.has_squad %}
+
+  <div class="panel accent-orange">
+    <div class="panel-header"><h2>No Squad Synced</h2></div>
+    <div class="panel-body">
+      <div class="empty-state">{{ view.optimization_error }}</div>
+    </div>
+  </div>
+
+{% elif not view.has_predictions %}
+
+  <div class="panel accent-orange">
+    <div class="panel-header"><h2>Predictions Not Generated Yet</h2></div>
+    <div class="panel-body">
+      <div class="empty-state">{{ view.optimization_error }}</div>
+    </div>
+  </div>
+
+{% else %}
+
+  <div class="panel accent-pink">
+    <div class="panel-header"><h2>Recommended Move</h2></div>
+    <div class="panel-body">
+      {% if view.optimization %}
+        {% set rec = view.optimization.recommended %}
+        {% if rec.transfers == 0 %}
+          <p><strong>Hold your squad.</strong> No affordable swap beats what you already own this week.</p>
+        {% else %}
+          {% for out_p in rec.players_out %}
+          <div class="transfer-move">
+            <span class="badge badge-{{ out_p.position|lower }}">{{ out_p.position }}</span>
+            {{ out_p.web_name }} (£{{ "%.1f"|format(out_p.price_millions) }}m)
+            <span class="transfer-arrow">&rarr;</span>
+            {% if rec.players_in[loop.index0] is defined %}
+              {% set in_p = rec.players_in[loop.index0] %}
+              <span class="badge badge-{{ in_p.position|lower }}">{{ in_p.position }}</span>
+              {{ in_p.web_name }} (£{{ "%.1f"|format(in_p.price_millions) }}m)
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% endif %}
+        <div class="reasoning-box">{{ rec.reasoning }}</div>
+
+        <div class="options-grid">
+          {% for option in view.optimization.options %}
+          <div class="option-card {% if option.transfers == rec.transfers %}recommended{% endif %}">
+            <div class="label" style="font-family: var(--font-mono); font-size:0.72rem; font-weight:700; text-transform:uppercase; margin-bottom:6px;">
+              {{ option.transfers }} transfer{{ "s" if option.transfers != 1 else "" }}
+            </div>
+            {% if option.feasible %}
+              <div class="net {{ 'negative' if option.net_expected_gain < 0 else '' }}">
+                {{ "%+.1f"|format(option.net_expected_gain) }} pts
+              </div>
+              {% if option.hit_cost %}
+                <div style="font-family: var(--font-mono); font-size:0.78rem;">
+                  incl. -{{ option.hit_cost }} pt hit
+                </div>
+              {% endif %}
+            {% else %}
+              <div style="font-family: var(--font-mono); font-size:0.8rem;">infeasible</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">{{ view.optimization_error }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="panel accent-yellow">
+    <div class="panel-header"><h2>Squad Context</h2></div>
+    <div class="panel-body">
+      <section class="stat-grid" style="margin-bottom:0;">
+        <div class="stat-card cyan">
+          <div class="label">Bank</div>
+          <div class="value">£{{ "%.1f"|format(view.bank_millions) }}m</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="label">Free Transfers</div>
+          <div class="value">{{ view.free_transfers }}</div>
+        </div>
+        <div class="stat-card green">
+          <div class="label">Squad Value</div>
+          <div class="value">£{{ "%.1f"|format(view.squad_value_millions) }}m</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+{% endif %}
+
+{% endblock %}

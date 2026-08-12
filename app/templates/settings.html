@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}DELPHI — Settings{% endblock %}
+
+{% block content %}
+
+<div class="page-title">
+  <div>
+    <h1>Settings</h1>
+    <p class="subtitle">Read-only view of current configuration</p>
+  </div>
+</div>
+
+<div class="panel accent-cyan">
+  <div class="panel-header"><h2>Application</h2></div>
+  <div class="panel-body">
+    <table>
+      <tbody>
+        <tr><td>App Name</td><td>{{ settings.app_name }}</td></tr>
+        <tr><td>Environment</td><td>{{ settings.app_env }}</td></tr>
+        <tr><td>Debug</td><td>{{ settings.debug }}</td></tr>
+        <tr><td>Log Level</td><td>{{ settings.log_level }}</td></tr>
+        <tr><td>Database</td><td>{{ "SQLite" if settings.is_sqlite else "PostgreSQL" }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel accent-orange">
+  <div class="panel-header"><h2>Scheduler</h2></div>
+  <div class="panel-body">
+    <table>
+      <tbody>
+        <tr><td>Enabled</td><td>{{ settings.enable_scheduler }}</td></tr>
+        <tr><td>Cron</td><td><code>{{ settings.weekly_update_cron }}</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel accent-yellow">
+  <div class="panel-header"><h2>DELPHI / ML</h2></div>
+  <div class="panel-body">
+    <table>
+      <tbody>
+        <tr><td>Min Samples for Training</td><td>{{ settings.ml_min_samples_for_training }}</td></tr>
+        <tr><td>Default Horizons</td><td>{{ settings.ml_default_horizons }}</td></tr>
+        <tr><td>Model Name</td><td>{{ settings.ml_model_name }}</td></tr>
+        <tr><td>Model Version</td><td>{{ settings.ml_model_version }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel accent-green">
+  <div class="panel-header"><h2>My Squad</h2></div>
+  <div class="panel-body">
+    <table>
+      <tbody>
+        <tr><td>FPL_TEAM_ID</td><td>{{ settings.fpl_team_id or "Not set" }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel accent-pink">
+  <div class="panel-header"><h2>Health Check</h2></div>
+  <div class="panel-body">
+    <a class="btn" href="/health">View /health JSON</a>
+  </div>
+</div>
+
+{% endblock %}

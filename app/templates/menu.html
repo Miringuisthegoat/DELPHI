@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}DELPHI — Menu{% endblock %}
+
+{% block content %}
+
+<div class="page-title">
+  <div>
+    <h1>Menu</h1>
+    <p class="subtitle">Every DELPHI page and API family, in one place</p>
+  </div>
+</div>
+
+<div class="panel accent-green">
+  <div class="panel-header"><h2>Pages</h2></div>
+  <div class="panel-body">
+    <div class="options-grid">
+      <a class="option-card" href="/dashboard" style="text-decoration:none; color:inherit;">
+        <div class="label" style="font-family: var(--font-mono); font-weight:700; text-transform:uppercase;">Dashboard</div>
+        <div style="font-family: var(--font-body); font-size:0.85rem; margin-top:6px;">Squad overview, projected points, captaincy</div>
+      </a>
+      <a class="option-card" href="/squad" style="text-decoration:none; color:inherit;">
+        <div class="label" style="font-family: var(--font-mono); font-weight:700; text-transform:uppercase;">Squad</div>
+        <div style="font-family: var(--font-body); font-size:0.85rem; margin-top:6px;">Full 15-man squad and injury alerts</div>
+      </a>
+      <a class="option-card" href="/transfers" style="text-decoration:none; color:inherit;">
+        <div class="label" style="font-family: var(--font-mono); font-weight:700; text-transform:uppercase;">Transfers</div>
+        <div style="font-family: var(--font-body); font-size:0.85rem; margin-top:6px;">DELPHI's transfer recommendation</div>
+      </a>
+      <a class="option-card" href="/reports" style="text-decoration:none; color:inherit;">
+        <div class="label" style="font-family: var(--font-mono); font-weight:700; text-transform:uppercase;">Reports</div>
+        <div style="font-family: var(--font-body); font-size:0.85rem; margin-top:6px;">Weekly prose report</div>
+      </a>
+      <a class="option-card" href="/profile" style="text-decoration:none; color:inherit;">
+        <div class="label" style="font-family: var(--font-mono); font-weight:700; text-transform:uppercase;">Profile</div>
+        <div style="font-family: var(--font-body); font-size:0.85rem; margin-top:6px;">Manager identity and season snapshot</div>
+      </a>
+      <a class="option-card" href="/settings" style="text-decoration:none; color:inherit;">
+        <div class="label" style="font-family: var(--font-mono); font-weight:700; text-transform:uppercase;">Settings</div>
+        <div style="font-family: var(--font-body); font-size:0.85rem; margin-top:6px;">Environment, scheduler, ML config</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="panel accent-pink">
+  <div class="panel-header"><h2>JSON API</h2></div>
+  <div class="panel-body">
+    <table>
+      <thead><tr><th>Family</th><th>Route</th></tr></thead>
+      <tbody>
+        <tr><td>Predictions</td><td><code>/api/v1/predictions/{gameweek}</code></td></tr>
+        <tr><td>Optimization</td><td><code>/api/v1/optimization/optimize/{gameweek}</code></td></tr>
+        <tr><td>Squad</td><td><code>/api/v1/squad/{gameweek}</code></td></tr>
+        <tr><td>Reports</td><td><code>/api/v1/reports/{gameweek}</code></td></tr>
+        <tr><td>Pipeline</td><td><code>/api/v1/pipeline/run/{gameweek}</code></td></tr>
+        <tr><td>Sync</td><td><code>/api/v1/sync/full</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

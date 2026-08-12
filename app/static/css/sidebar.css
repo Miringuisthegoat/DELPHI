@@ -1,0 +1,144 @@
+/* ==========================================================================
+   DELPHI Sidebar — isolated stylesheet (Phase 8 cont.)
+   Kept separate from style.css per project convention: sidebar changes
+   should never risk regressing the rest of the Neo-Brutalism system.
+   ========================================================================== */
+
+.sidebar {
+  background: var(--green);
+  border: var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 24px;
+}
+
+.sidebar .brand-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.sidebar .brand {
+  width: 48px;
+  height: 48px;
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  background: var(--ink);
+  color: var(--yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.sidebar .brand:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow);
+}
+.sidebar .brand svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  flex: 1;
+}
+
+.sidebar .nav-item {
+  width: 52px;
+  height: 52px;
+  border: var(--border);
+  background: var(--bg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  position: relative;
+}
+.sidebar .nav-item svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--ink);
+  fill: none;
+  stroke-width: 2.2;
+}
+.sidebar .nav-item:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow);
+}
+.sidebar .nav-item:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+.sidebar .nav-item.active {
+  background: var(--yellow);
+  box-shadow: var(--shadow);
+}
+.sidebar .nav-item.active svg {
+  stroke: var(--ink);
+}
+
+/* Tooltip label on hover - small, mono, doesn't disrupt the icon grid */
+.sidebar .nav-item .nav-tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 5px 9px;
+  white-space: nowrap;
+  border: var(--border-thin);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+  z-index: 20;
+}
+.sidebar .nav-item:hover .nav-tooltip {
+  opacity: 1;
+}
+
+.sidebar .nav-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 860px) {
+  .sidebar {
+    flex-direction: row;
+    position: static;
+    padding: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .sidebar nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .sidebar .nav-item .nav-tooltip {
+    display: none;
+  }
+}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}DELPHI — Squad{% endblock %}
+
+{% block content %}
+
+<div class="page-title">
+  <div>
+    <h1>My Squad</h1>
+    <p class="subtitle">Gameweek {{ view.gameweek }} · generated {{ view.generated_at.strftime("%Y-%m-%d %H:%M UTC") }}</p>
+  </div>
+  <form class="gw-form" method="get" action="/squad">
+    <label for="gameweek" class="subtitle" style="font-family: var(--font-mono); font-weight:700;">GW</label>
+    <input type="number" id="gameweek" name="gameweek" min="1" max="38" value="{{ view.gameweek }}" />
+    <button class="btn" type="submit">Load</button>
+  </form>
+</div>
+
+{% if not view.has_squad %}
+
+  <div class="panel accent-orange">
+    <div class="panel-header"><h2>No Squad Synced</h2></div>
+    <div class="panel-body">
+      <div class="empty-state">{{ view.optimization_error }}</div>
+    </div>
+  </div>
+
+{% else %}
+
+  <section class="stat-grid">
+    <div class="stat-card cyan">
+      <div class="label">Bank</div>
+      <div class="value">£{{ "%.1f"|format(view.bank_millions) }}m</div>
+    </div>
+    <div class="stat-card green">
+      <div class="label">Squad Value</div>
+      <div class="value">£{{ "%.1f"|format(view.squad_value_millions) }}m</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="label">Free Transfers</div>
+      <div class="value">{{ view.free_transfers }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Chips Available</div>
+      <div class="value" style="font-size:1rem;">{{ view.chips_available|join(", ") if view.chips_available else "None" }}</div>
+    </div>
+  </section>
+
+  <div class="panel accent-cyan">
+    <div class="panel-header"><h2>Full 15-Man Squad</h2></div>
+    <div class="panel-body">
+      <table>
+        <thead>
+          <tr>
+            <th>Pos</th><th>Player</th><th>Club</th><th>Price</th>
+            <th>Predicted (GW{{ view.gameweek }})</th><th>Role</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in view.squad_rows %}
+          <tr class="{{ 'bench-row' if not row.is_starting else '' }} {{ 'injury-row' if row.status != 'a' else '' }}">
+            <td><span class="badge badge-{{ row.position|lower }}">{{ row.position }}</span></td>
+            <td>
+              {{ row.web_name }}
+              {% if row.is_captain %}<span class="crown" title="Captain">©</span>{% endif %}
+              {% if row.is_vice_captain %}<span class="crown" title="Vice Captain">(VC)</span>{% endif %}
+            </td>
+            <td>{{ row.team_short_name }}</td>
+            <td>£{{ "%.1f"|format(row.price_millions) }}m</td>
+            <td>{{ "%.1f"|format(row.predicted_points) if row.predicted_points is not none else "—" }}</td>
+            <td>{{ "Starting" if row.is_starting else "Bench " ~ (row.bench_position or "") }}</td>
+            <td><span class="badge badge-status-{{ row.status }}">{{ row.status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if view.injury_alerts %}
+  <div class="panel accent-orange">
+    <div class="panel-header"><h2>Injury / Availability Alerts</h2></div>
+    <div class="panel-body">
+      <table>
+        <thead>
+          <tr><th>Player</th><th>Status</th><th>Chance Next GW</th><th>News</th></tr>
+        </thead>
+        <tbody>
+          {% for alert in view.injury_alerts %}
+          <tr class="injury-row">
+            <td>{{ alert.web_name }}</td>
+            <td><span class="badge badge-status-{{ alert.status }}">{{ alert.status }}</span></td>
+            <td>{{ alert.chance_of_playing_next_round if alert.chance_of_playing_next_round is not none else "—" }}{{ "%" if alert.chance_of_playing_next_round is not none else "" }}</td>
+            <td>{{ alert.news or "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+{% endif %}
+
+{% endblock %}

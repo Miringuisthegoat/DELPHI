@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}DELPHI — Profile{% endblock %}
+
+{% block content %}
+
+<div class="page-title">
+  <div>
+    <h1>Manager Profile</h1>
+    <p class="subtitle">Squad-linked identity and season snapshot</p>
+  </div>
+</div>
+
+{% if not view.has_squad %}
+
+  <div class="panel accent-orange">
+    <div class="panel-header"><h2>No Squad Synced</h2></div>
+    <div class="panel-body">
+      <div class="empty-state">{{ view.optimization_error }}</div>
+    </div>
+  </div>
+
+{% else %}
+
+  <section class="stat-grid">
+    <div class="stat-card">
+      <div class="label">Team Name</div>
+      <div class="value" style="font-size:1.2rem;">{{ team_name or ("Team #" ~ fpl_team_id if fpl_team_id else "Not set") }}</div>
+    </div>
+    <div class="stat-card green">
+      <div class="label">Total Points So Far</div>
+      <div class="value">{{ view.total_points }}</div>
+    </div>
+    <div class="stat-card cyan">
+      <div class="label">Overall Rank</div>
+      <div class="value" style="font-size:1.4rem;">{{ "{:,}".format(view.overall_rank) if view.overall_rank else "—" }}</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="label">Squad Gameweek</div>
+      <div class="value">{{ view.squad_gameweek }}</div>
+    </div>
+  </section>
+
+  <div class="panel accent-yellow">
+    <div class="panel-header"><h2>Season Snapshot</h2></div>
+    <div class="panel-body">
+      <table>
+        <tbody>
+          {% if manager_name %}
+          <tr><td>Manager</td><td>{{ manager_name }}</td></tr>
+          {% endif %}
+          <tr><td>FPL Team ID</td><td>{{ fpl_team_id or "Not set" }}</td></tr>
+          <tr><td>Bank</td><td>£{{ "%.1f"|format(view.bank_millions) }}m</td></tr>
+          <tr><td>Squad Value</td><td>£{{ "%.1f"|format(view.squad_value_millions) }}m</td></tr>
+          <tr><td>Free Transfers</td><td>{{ view.free_transfers }}</td></tr>
+          <tr><td>Chip Played This GW</td><td>{{ view.chip_played or "None" }}</td></tr>
+          <tr><td>Chips Available</td><td>{{ view.chips_available|join(", ") if view.chips_available else "None" }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+{% endif %}
+
+{% endblock %}

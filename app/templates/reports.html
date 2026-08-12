@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}DELPHI — Weekly Report{% endblock %}
+
+{% block content %}
+
+<div class="page-title">
+  <div>
+    <h1>Weekly Report</h1>
+    <p class="subtitle">Gameweek {{ report.gameweek }} · generated {{ report.generated_at.strftime("%Y-%m-%d %H:%M UTC") }}</p>
+  </div>
+  <form class="gw-form" method="get" action="/reports">
+    <label for="gameweek" class="subtitle" style="font-family: var(--font-mono); font-weight:700;">GW</label>
+    <input type="number" id="gameweek" name="gameweek" min="1" max="38" value="{{ report.gameweek }}" />
+    <button class="btn" type="submit">Load</button>
+  </form>
+</div>
+
+<div class="panel accent-cyan">
+  <div class="panel-header"><h2>{{ report.headline }}</h2></div>
+  <div class="panel-body">
+    {% for section in report.sections %}
+    <div style="margin-bottom: 22px;">
+      <h3 style="font-family: var(--font-heading); text-transform: uppercase; font-size: 1rem; border-bottom: var(--border-thin); padding-bottom: 6px; margin-bottom: 10px;">
+        {{ section.heading }}
+      </h3>
+      <ul style="margin: 0; padding-left: 20px; font-family: var(--font-body); font-size: 0.92rem; line-height: 1.6;">
+        {% for line in section.lines %}
+        <li>{{ line }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="panel accent-orange">
+  <div class="panel-header"><h2>Deliver This Report</h2></div>
+  <div class="panel-body">
+    <form method="post" action="/reports/{{ report.gameweek }}/send">
+      <button class="btn" type="submit">Send via Console Channel</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

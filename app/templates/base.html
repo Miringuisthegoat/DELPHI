@@ -7,20 +7,89 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/sidebar.css" />
 </head>
 <body>
+  {% set current_path = request.url.path %}
   <div class="shell">
     <aside class="sidebar">
-      <div class="brand">&Delta;</div>
+      <a class="brand-link" href="/dashboard" title="DELPHI — Dashboard">
+        <span class="brand">
+          <!-- Oracle of Delphi motif: laurel-crowned tripod silhouette,
+               standing in for the plain triangle logo -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l1.6 3.4L17 8l-3.4 1.6L12 13l-1.6-3.4L7 8l3.4-1.6z" />
+            <path d="M6 21l3-8h6l3 8" />
+            <path d="M9.5 21h5" />
+          </svg>
+        </span>
+      </a>
+
       <nav>
-        <a class="nav-item active" href="/dashboard" title="Dashboard">&#9670;</a>
-        <a class="nav-item" href="/api/v1/predictions/1" title="Predictions">&#9711;</a>
-        <a class="nav-item" href="/api/v1/optimization/optimize/1" title="Transfers">&#8646;</a>
-        <a class="nav-item" href="/api/v1/squad/1" title="Squad">&#9787;</a>
-        <a class="nav-item" href="/api/v1/reports/1" title="Reports">&#9776;</a>
+        <a
+          class="nav-item {{ 'active' if current_path.startswith('/dashboard') else '' }}"
+          href="/dashboard"
+          title="Dashboard"
+        >
+          <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9" /><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10" /></svg>
+          <span class="nav-tooltip">Dashboard</span>
+        </a>
+
+        <a
+          class="nav-item {{ 'active' if current_path.startswith('/squad') else '' }}"
+          href="/squad"
+          title="Squad"
+        >
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.5 7 7.5 1-5.5 5.2L18.8 22 12 18l-6.8 4 1.3-6.8L1 10l7.5-1z" /></svg>
+          <span class="nav-tooltip">Squad</span>
+        </a>
+
+        <a
+          class="nav-item {{ 'active' if current_path.startswith('/transfers') else '' }}"
+          href="/transfers"
+          title="Transfers"
+        >
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /></svg>
+          <span class="nav-tooltip">Transfers</span>
+        </a>
+
+        <a
+          class="nav-item {{ 'active' if current_path.startswith('/reports') else '' }}"
+          href="/reports"
+          title="Reports"
+        >
+          <svg viewBox="0 0 24 24"><path d="M7 7l10 10M7 17L17 7" /><path d="M4 7h6M14 17h6" /></svg>
+          <span class="nav-tooltip">Reports</span>
+        </a>
+
+        <a
+          class="nav-item {{ 'active' if current_path.startswith('/profile') else '' }}"
+          href="/profile"
+          title="Profile"
+        >
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M9 10c0-.6.4-1 1-1h4c.6 0 1 .4 1 1s-.4 1-1 1h-4c-.6 0-1-.4-1-1z" /><path d="M8 16c1-1.6 2.4-2.4 4-2.4s3 .8 4 2.4" /></svg>
+          <span class="nav-tooltip">Profile</span>
+        </a>
+
+        <a
+          class="nav-item {{ 'active' if current_path.startswith('/menu') else '' }}"
+          href="/menu"
+          title="Menu"
+        >
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+          <span class="nav-tooltip">Menu</span>
+        </a>
       </nav>
+
       <div class="nav-foot">
-        <a class="nav-item" href="/health" title="Settings">&#9881;</a>
+        <a
+          class="nav-item {{ 'active' if current_path.startswith('/settings') else '' }}"
+          href="/settings"
+          title="Settings"
+        >
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1z" /></svg>
+          <span class="nav-tooltip">Settings</span>
+        </a>
       </div>
     </aside>
 

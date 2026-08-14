@@ -157,3 +157,15 @@ for env='development' level='INFO'
 2026-08-14 12:13:43.733 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
 2026-08-14 12:23:59.470 | INFO     | app.scheduler.jobs:stop_scheduler:124 - Scheduler stopped.
 2026-08-14 12:23:59.573 | INFO     | app.main:lifespan:33 - Shutting down FPL Oracle AI
+2026-08-14 12:24:32.779 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-14 12:24:32.781 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-14 12:24:32.782 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-14 12:24:32.784 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-14 12:24:32.849 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-14 12:24:32.855 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-14 12:24:32.900 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
+2026-08-14 12:24:32.900 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
+2026-08-14 13:08:12.103 | INFO     | app.scheduler.jobs:stop_scheduler:124 - Scheduler stopped.
+2026-08-14 13:08:12.125 | INFO     | app.main:lifespan:33 - Shutting down FPL Oracle AI
+2026-08-14 13:08:12.111 | INFO     | app.scheduler.jobs:stop_scheduler:124 - Scheduler stopped.
+2026-08-14 13:08:12.141 | INFO     | app.main:lifespan:33 - Shutting down FPL Oracle AI

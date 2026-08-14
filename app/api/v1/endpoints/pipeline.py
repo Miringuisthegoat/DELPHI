@@ -54,6 +54,33 @@ def _resolve_current_gameweek(db) -> int:
     return latest if latest is not None else 1
 
 
+@router.post("/run/current", response_model=PipelineResponse)
+async def run_weekly_pipeline_current(
+    horizons: list[int] = Query(
+        default=list(settings.ml_default_horizons),
+        description="Horizons to (re)generate predictions for.",
+    ),
+    evaluate_previous: bool = Query(
+        default=True,
+        description="Also backfill actual outcomes for gameweek-1 before reporting.",
+    ),
+    x_pipeline_secret: str | None = Header(default=None),
+) -> PipelineResponse:
+    """Run the pipeline for whatever gameweek is 'current' right now."""
+    _verify_pipeline_secret(x_pipeline_secret)
+
+    with session_scope() as db:
+        gameweek = _resolve_current_gameweek(db)
+        result = _pipeline.run(
+            db,
+            gameweek=gameweek,
+            horizons=tuple(horizons),
+            evaluate_previous=evaluate_previous,
+        )
+
+    return PipelineResponse.from_result(result)
+
+
 @router.post("/run/{gameweek}", response_model=PipelineResponse)
 async def run_weekly_pipeline(
     gameweek: int,
@@ -67,46 +94,10 @@ async def run_weekly_pipeline(
     ),
     x_pipeline_secret: str | None = Header(default=None),
 ) -> PipelineResponse:
-    """Generate predictions, then build the weekly report, for a specific gameweek.
-
-    Requires the X-Pipeline-Secret header to match settings.pipeline_secret
-    once that setting is configured (see app/core/config.py).
-    """
+    """Generate predictions, then build the weekly report, for a specific gameweek."""
     _verify_pipeline_secret(x_pipeline_secret)
 
     with session_scope() as db:
-        result = _pipeline.run(
-            db,
-            gameweek=gameweek,
-            horizons=tuple(horizons),
-            evaluate_previous=evaluate_previous,
-        )
-
-    return PipelineResponse.from_result(result)
-
-
-@router.post("/run/current", response_model=PipelineResponse)
-async def run_weekly_pipeline_current(
-    horizons: list[int] = Query(
-        default=list(settings.ml_default_horizons),
-        description="Horizons to (re)generate predictions for.",
-    ),
-    evaluate_previous: bool = Query(
-        default=True,
-        description="Also backfill actual outcomes for gameweek-1 before reporting.",
-    ),
-    x_pipeline_secret: str | None = Header(default=None),
-) -> PipelineResponse:
-    """Run the pipeline for whatever gameweek is 'current' right now.
-
-    Resolves the gameweek server-side (latest synced SquadState, or 1 if
-    none yet) so external schedulers like cron-job.org never need to be
-    manually updated with a hardcoded gameweek number week to week.
-    """
-    _verify_pipeline_secret(x_pipeline_secret)
-
-    with session_scope() as db:
-        gameweek = _resolve_current_gameweek(db)
         result = _pipeline.run(
             db,
             gameweek=gameweek,

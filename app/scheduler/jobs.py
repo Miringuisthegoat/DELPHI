@@ -32,6 +32,7 @@ from app.core.config import settings
 from app.db.session import session_scope
 from app.models.squad import SquadState
 from app.services.reporting import ConsoleDeliveryChannel, DeliveryChannel, WeeklyReportService
+from app.scheduler.full_pipeline_jobs import generate_full_weekly_pipeline
 
 _scheduler: BackgroundScheduler | None = None
 
@@ -100,7 +101,7 @@ def start_scheduler() -> BackgroundScheduler | None:
 
     scheduler = BackgroundScheduler(timezone="UTC")
     scheduler.add_job(
-        generate_and_deliver_weekly_report,
+        generate_full_weekly_pipeline,
         trigger=CronTrigger.from_crontab(settings.weekly_update_cron),
         id="delphi_weekly_report",
         replace_existing=True,

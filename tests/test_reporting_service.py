@@ -185,12 +185,35 @@ class TestDeliveryChannels:
         assert result.delivered is True
         assert result.channel == "console"
 
-    def test_telegram_channel_is_not_yet_implemented(self, db_session):
+    def test_telegram_channel_raises_when_unconfigured(self, db_session):
         _basic_squad(db_session)
         report = WeeklyReportService().build_report(db_session, gameweek=_GAMEWEEK)
 
         try:
-            TelegramDeliveryChannel().send(report)
+            TelegramDeliveryChannel(bot_token=None, chat_id=None).send(report)
             assert False, "expected NotImplementedError"
         except NotImplementedError:
             pass
+
+    def test_telegram_channel_delivers_when_configured(self, db_session, monkeypatch):
+        """Verifies the request-building/success path without hitting the
+        real Telegram API - httpx.post is monkeypatched to return a fake
+        200 response."""
+        import httpx
+
+        _basic_squad(db_session)
+        report = WeeklyReportService().build_report(db_session, gameweek=_GAMEWEEK)
+
+        def fake_post(url, json, timeout):
+            request = httpx.Request("POST", url)
+            return httpx.Response(200, json={"ok": True}, request=request)
+
+        monkeypatch.setattr(
+            "app.services.reporting.delivery.httpx.post", fake_post
+        )
+
+        channel = TelegramDeliveryChannel(bot_token="fake-token", chat_id="12345")
+        result = channel.send(report)
+
+        assert result.delivered is True
+        assert result.channel == "telegram"

@@ -38,8 +38,18 @@ class Settings(BaseSettings):
     fpl_request_timeout_seconds: int = Field(default=15)
     fpl_max_retries: int = Field(default=3)
 
+    # --- Pipeline security ---
+    pipeline_secret: str | None = Field(default=None)
+    """Shared secret required in the X-Pipeline-Secret header to trigger
+    POST /api/v1/pipeline/run/{gameweek}. None means the check is skipped -
+    fine for local dev, but this MUST be set before deploying publicly."""
+
     # --- My squad ---
     fpl_team_id: int | None = Field(default=None)
+
+    # --- Telegram delivery ---
+    telegram_bot_token: str | None = Field(default=None)
+    telegram_chat_id: str | None = Field(default=None)
 
     @field_validator("fpl_team_id", mode="before")
     @classmethod

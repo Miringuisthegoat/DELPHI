@@ -13,9 +13,14 @@ import argparse
 
 from loguru import logger
 
+from app.core.config import settings
 from app.core.logging import configure_logging
 from app.db.session import init_db, session_scope
-from app.services.reporting import ConsoleDeliveryChannel, WeeklyReportService
+from app.services.reporting import (
+    ConsoleDeliveryChannel,
+    TelegramDeliveryChannel,
+    WeeklyReportService,
+)
 
 
 def main() -> None:
@@ -25,7 +30,7 @@ def main() -> None:
         "--format", choices=["markdown", "text"], default="markdown", help="Output format to print."
     )
     parser.add_argument(
-        "--send", action="store_true", help="Also deliver the report via the console channel."
+        "--send", action="store_true", help="Also deliver the report via Telegram (if configured) or console."
     )
     args = parser.parse_args()
 
@@ -40,7 +45,11 @@ def main() -> None:
     print(output)
 
     if args.send:
-        result = ConsoleDeliveryChannel().send(report)
+        if settings.telegram_bot_token and settings.telegram_chat_id:
+            channel = TelegramDeliveryChannel()
+        else:
+            channel = ConsoleDeliveryChannel()
+        result = channel.send(report)
         logger.info("Delivered via {}: {}", result.channel, result.detail)
 
 

@@ -10,6 +10,7 @@ uvicorn[standard]==0.38.0
 
 # --- Database / ORM ---
 sqlalchemy==2.0.45
+psycopg2-binary==2.9.10
 alembic==1.14.1
 
 # --- Settings / validation ---

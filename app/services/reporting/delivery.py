@@ -19,10 +19,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+import httpx
 from loguru import logger
 
+from app.core.config import settings
 from app.services.reporting.service import WeeklyReport
-
 
 @dataclass
 class DeliveryResult:
@@ -63,37 +64,52 @@ class ConsoleDeliveryChannel(DeliveryChannel):
             channel=self.name, delivered=True, detail="Logged to console/log file."
         )
 
+_UNSET = object()
+
 
 class TelegramDeliveryChannel(DeliveryChannel):
     """Sends the report to a Telegram chat via the Bot API.
 
-    NOT YET IMPLEMENTED - this is the documented seam for a future phase.
-    Wiring this up needs two settings (add to `app/core/config.py`):
-
-        telegram_bot_token: str | None = None
-        telegram_chat_id: str | None = None
-
-    and a POST to
-    ``https://api.telegram.org/bot{token}/sendMessage`` with
-    ``{"chat_id": chat_id, "text": report.to_plain_text()}`` via `httpx`
-    (already a project dependency - see `app.services.fpl_api.client`).
-    Raises `NotImplementedError` rather than silently no-op'ing, so a
-    misconfigured "send to Telegram" call fails loudly instead of
-    pretending to have delivered something.
+    Requires `settings.telegram_bot_token` and `settings.telegram_chat_id`
+    to be set (see `app/core/config.py`) unless explicit overrides are
+    passed to the constructor. Uses `report.to_plain_text()` rather than
+    markdown, since Telegram's default rendering doesn't handle our
+    markdown headings well without carefully escaped MarkdownV2.
     """
 
     name = "telegram"
 
-    def __init__(self, bot_token: str | None = None, chat_id: str | None = None) -> None:
-        self._bot_token = bot_token
-        self._chat_id = chat_id
+    def __init__(self, bot_token: object = _UNSET, chat_id: object = _UNSET) -> None:
+        self._bot_token = settings.telegram_bot_token if bot_token is _UNSET else bot_token
+        self._chat_id = settings.telegram_chat_id if chat_id is _UNSET else chat_id
 
     def send(self, report: WeeklyReport) -> DeliveryResult:
-        raise NotImplementedError(
-            "Telegram delivery isn't implemented yet - see this class's docstring "
-            "for the two settings and the httpx call needed to wire it up."
-        )
+        if not self._bot_token or not self._chat_id:
+            raise NotImplementedError(
+                "Telegram delivery requires TELEGRAM_BOT_TOKEN and "
+                "TELEGRAM_CHAT_ID to be set in .env - see this class's "
+                "docstring."
+            )
 
+        text = report.to_plain_text()
+        if len(text) > 4000:
+            text = text[:3990] + "\n...[truncated]"
+
+        url = f"https://api.telegram.org/bot{self._bot_token}/sendMessage"
+        try:
+            response = httpx.post(
+                url, json={"chat_id": self._chat_id, "text": text}, timeout=10.0
+            )
+            response.raise_for_status()
+        except httpx.HTTPError as exc:
+            logger.warning("Telegram delivery failed: {}", exc)
+            return DeliveryResult(
+                channel=self.name, delivered=False, detail=f"Telegram API error: {exc}"
+            )
+
+        return DeliveryResult(
+            channel=self.name, delivered=True, detail="Delivered to Telegram chat."
+        )
 
 class DiscordDeliveryChannel(DeliveryChannel):
     """Sends the report to a Discord channel via an incoming webhook.

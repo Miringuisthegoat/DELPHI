@@ -36,3 +36,110 @@ INJURY / AVAILABILITY ALERTS
 2026-08-12 01:13:04.122 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
 2026-08-12 01:13:04.136 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
 2026-08-12 01:13:04.138 | INFO     | app.scheduler.jobs:start_scheduler:95 - Scheduler disabled (ENABLE_SCHEDULER=false) - skipping.
+2026-08-12 15:10:48.452 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-12 15:10:48.453 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-12 15:10:48.535 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-12 15:10:48.537 | INFO     | app.scheduler.jobs:start_scheduler:95 - Scheduler disabled (ENABLE_SCHEDULER=false) - skipping.
+2026-08-12 17:03:28.237 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-12 17:03:28.240 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-12 17:03:28.322 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-12 17:03:28.323 | INFO     | app.scheduler.jobs:start_scheduler:95 - Scheduler disabled (ENABLE_SCHEDULER=false) - skipping.
+2026-08-13 10:44:09.184 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-13 10:44:09.188 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-13 10:44:09.298 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-13 10:44:09.302 | INFO     | app.scheduler.jobs:start_scheduler:95 - Scheduler disabled (ENABLE_SCHEDULER=false) - skipping.
+2026-08-13 10:44:25.855 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-13 10:44:25.856 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-13 10:44:25.906 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-13 10:44:25.909 | INFO     | app.scheduler.jobs:start_scheduler:95 - Scheduler disabled (ENABLE_SCHEDULER=false) - skipping.
+2026-08-13 10:46:36.227 | INFO     | app.main:lifespan:33 - Shutting down FPL Oracle AI
+2026-08-13 11:27:58.175 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-13 11:27:58.197 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-13 11:27:58.689 | INFO     | app.services.reporting.delivery:send:60 - Weekly report for gw 1:
+DELPHI Weekly Report - Gameweek 1 (projected 36.4 pts)
+
+SQUAD SNAPSHOT
+- Bank: £36.0m
+- Squad value: £64.0m
+- Free transfers: 1
+- Total points so far: 0
+- Chips available: wildcard, free_hit, bench_boost, triple_captain
+
+PROJECTED POINTS
+- DELPHI projects 36.4 points this gameweek.
+
+CAPTAINCY
+- Captain: Walle Egeli (3.7 projected pts)
+- Walle Egeli has the highest projected points (3.7) among your starting XI for gameweek 1.
+- Vice captain: Diop (3.7 projected pts)
+
+TRANSFER SUGGESTION
+- Bassette (£4.5m) -> Haaland (£15.5m)
+- Bassette -> Haaland: projects +5.9 pts in vs -0.0 pts out over the horizon, netting +5.9 points.
+
+INJURY / AVAILABILITY ALERTS
+- Bassette (u, 0% chance of playing next round) - Has joined KVC Westerlo on loan for the rest of the season
+
+2026-08-13 11:27:58.690 | INFO     | __main__:main:44 - Delivered via console: Logged to console/log file.
+2026-08-13 11:37:25.144 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-13 11:37:25.159 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-13 11:37:27.160 | INFO     | __main__:main:53 - Delivered via telegram: Delivered to Telegram chat.
+2026-08-13 11:37:27.195 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-13 11:37:27.227 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-13 11:37:29.198 | INFO     | __main__:main:53 - Delivered via telegram: Delivered to Telegram chat.
+2026-08-13 11:42:01.952 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-13 11:42:01.998 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-13 11:42:05.515 | INFO     | __main__:main:53 - Delivered via telegram: Delivered to Telegram chat.
+2026-08-13 11:45:10.452 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-13 11:45:10.471 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-13 11:45:10.686 | INFO     | __main__:seed_fake_squad:163 - Seeded fake squad for gw 1: 15 players, bank=36.0m, squad_value=64.0m
+2026-08-13 11:45:10.699 | INFO     | __main__:main:190 - Done. View it at http://127.0.0.1:8000/dashboard?gameweek=1
+2026-08-13 11:53:10.344 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-13 11:53:10.345 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-13 11:53:10.353 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-13 11:53:10.354 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-13 11:53:10.590 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-13 11:53:10.596 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-13 11:53:10.634 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
+2026-08-14 11:37:08.759 | INFO     | app.scheduler.jobs:stop_scheduler:124 - Scheduler stopped.
+2026-08-14 11:37:08.780 | INFO     | app.main:lifespan:33 - Shutting down FPL Oracle AI
+2026-08-14 11:38:42.071 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-14 11:38:42.073 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-14 11:38:42.074 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-14 11:38:42.075 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-14 11:38:42.113 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-14 11:38:42.112 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-14 11:38:42.155 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
+2026-08-14 11:38:42.155 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
+2026-08-14 11:38:52.589 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-14 11:38:52.590 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-14 11:38:52.599 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-14 11:38:52.600 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-14 11:38:52.612 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-14 11:38:52.624 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-14 11:38:52.629 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
+2026-08-14 11:38:52.638 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
+2026-08-14 11:39:14.484 | INFO     | app.scheduler.jobs:stop_scheduler:124 - Scheduler stopped.
+2026-08-14 11:39:14.485 | INFO     | app.main:lifespan:33 - Shutting down FPL Oracle AI
+2026-08-14 11:39:14.610 | INFO     | app.scheduler.jobs:stop_scheduler:124 - Scheduler stopped.
+2026-08-14 11:39:14.610 | INFO     | app.main:lifespan:33 - Shutting down FPL Oracle AI
+2026-08-14 11:39:31.389 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-14 11:39:31.391 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-14 11:39:31.416 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-14 11:39:31.437 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
+2026-08-14 11:39:31.574 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-14 11:39:31.577 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-14 11:39:31.607 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-14 11:39:31.626 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
+2026-08-14 11:48:15.824 | INFO     | app.scheduler.jobs:stop_scheduler:124 - Scheduler stopped.
+2026-08-14 11:48:15.829 | INFO     | app.main:lifespan:33 - Shutting down FPL Oracle AI
+2026-08-14 11:48:15.850 | INFO     | app.scheduler.jobs:stop_scheduler:124 - Scheduler stopped.
+2026-08-14 11:48:15.854 | INFO     | app.main:lifespan:33 - Shutting down FPL Oracle AI
+2026-08-14 11:48:35.512 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-14 11:48:35.514 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-14 11:48:35.514 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-14 11:48:35.516 | INFO     | app.main:lifespan:28 - Starting D.E.L.P.H.I [development]
+2026-08-14 11:48:35.570 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-14 11:48:35.577 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-14 11:48:35.661 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.
+2026-08-14 11:48:35.661 | INFO     | app.scheduler.jobs:start_scheduler:110 - Scheduler started: weekly report job registered on cron '0 8 * * 2'.

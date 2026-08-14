@@ -37,7 +37,7 @@ class Player(TimestampMixin, Base):
     """Short display name as shown on the FPL site (e.g. "Salah")."""
 
     team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), nullable=False)
-    position: Mapped[Position] = mapped_column(Enum(Position), nullable=False)
+    position: Mapped[Position] = mapped_column(Enum(Position, name="player_position"), nullable=False)
 
     # --- Current market data --------------------------------------------
     # Prices are stored in tenths of a million, matching the raw FPL API

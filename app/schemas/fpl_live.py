@@ -5,6 +5,10 @@ gameweek (bonus points, in particular, are often provisional for a
 few hours after matches finish — ``FPLLiveStats.bps`` and
 ``bonus`` should be treated as provisional until the fixture's
 ``finished`` flag, from the fixtures endpoint, is true).
+
+Phase 13: adds the four "defensive contribution" fields FPL introduced
+for the 2025-26 season, mirroring the same addition to
+`app.schemas.fpl_element_summary.FPLElementHistory`.
 """
 
 from __future__ import annotations
@@ -36,6 +40,12 @@ class FPLLiveStats(BaseModel):
     ict_index: str = "0.0"
     total_points: int = 0
     in_dreamteam: bool = False
+
+    # --- Phase 13: defensive contribution (2025-26+ scoring rules) -------
+    clearances_blocks_interceptions: int = 0
+    tackles: int = 0
+    recoveries: int = 0
+    defensive_contribution: int = 0
 
 
 class FPLLiveElement(BaseModel):

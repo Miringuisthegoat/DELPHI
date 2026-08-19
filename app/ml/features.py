@@ -25,6 +25,21 @@ a player may have zero prior `PlayerGameweekStats` rows. Every rolling
 field then defaults to 0.0 rather than raising - `FeatureVector.has_history`
 is `False` in that case, which is exactly the signal `DelphiPredictionEngine`
 uses to prefer the heuristic predictor over an undertrained Random Forest.
+
+Phase 13: defensive contribution
+---------------------------------
+2025-26 introduced a new points source - defenders/midfielders/forwards
+who cross a per-gameweek CBIT (clearances+blocks+interceptions+tackles)
+threshold earn 2 bonus points. Four rolling features
+(`cbi_avg_5`, `tackles_avg_5`, `recoveries_avg_5`,
+`defensive_contribution_avg_5`) capture a player's recent tendency to hit
+that threshold. Seasons/rows before this rule existed simply have these
+at 0 - correct, not missing data (see `PlayerGameweekStats`'s Phase 13
+docstring). Adding these to `FEATURE_NAMES` changes the model's expected
+input shape, so any previously-saved Random Forest artifact will fail its
+`stored_features != FEATURE_NAMES` check on load (see `model.py`) and
+must be retrained - this is intentional, not a bug, since an old model
+has no idea this signal exists.
 """
 
 from __future__ import annotations
@@ -70,6 +85,10 @@ FEATURE_NAMES: tuple[str, ...] = (
     "influence_avg_5",
     "creativity_avg_5",
     "threat_avg_5",
+    "cbi_avg_5",
+    "tackles_avg_5",
+    "recoveries_avg_5",
+    "defensive_contribution_avg_5",
     "rotation_risk",
     "expected_minutes_probability",
     "fixture_difficulty",
@@ -123,6 +142,16 @@ class FeatureVector:
     influence_avg_5: float = 0.0
     creativity_avg_5: float = 0.0
     threat_avg_5: float = 0.0
+
+    # --- Phase 13: defensive contribution (2025-26+ scoring rules) -------
+    cbi_avg_5: float = 0.0
+    """Recent average clearances+blocks+interceptions per gameweek."""
+    tackles_avg_5: float = 0.0
+    recoveries_avg_5: float = 0.0
+    defensive_contribution_avg_5: float = 0.0
+    """Recent average of FPL's own defensive-contribution bonus-points
+    indicator - i.e. how often this player has been crossing the CBIT
+    threshold lately, not the raw CBI count itself."""
 
     rotation_risk: float = 0.0
     expected_minutes_probability: float = 1.0
@@ -264,6 +293,19 @@ class PlayerFeatureBuilder:
             vector.influence_avg_5 = _avg([float(h.influence) for h in last_5])
             vector.creativity_avg_5 = _avg([float(h.creativity) for h in last_5])
             vector.threat_avg_5 = _avg([float(h.threat) for h in last_5])
+
+            # Phase 13: defensive contribution rolling averages. Rows from
+            # before the rule existed just contribute 0s, which correctly
+            # dilutes the average toward "no defensive-contribution
+            # history" rather than needing special-casing here.
+            vector.cbi_avg_5 = _avg(
+                [float(h.clearances_blocks_interceptions) for h in last_5]
+            )
+            vector.tackles_avg_5 = _avg([float(h.tackles) for h in last_5])
+            vector.recoveries_avg_5 = _avg([float(h.recoveries) for h in last_5])
+            vector.defensive_contribution_avg_5 = _avg(
+                [float(h.defensive_contribution) for h in last_5]
+            )
 
             vector.rotation_risk = (
                 pstdev(minutes_all[-5:]) if len(minutes_all[-5:]) > 1 else 0.0

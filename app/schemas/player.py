@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models.enums import InjuryStatus, Position
+from enums import InjuryStatus, Position
 
 
 class TeamRead(BaseModel):

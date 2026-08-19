@@ -22,7 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from app.ml.features import FeatureVector
-from app.models.enums import Position
+from enums import Position
 
 # Rough position-level expected-points-per-90-minutes priors, calibrated
 # against typical FPL scoring patterns (defenders/keepers score more from

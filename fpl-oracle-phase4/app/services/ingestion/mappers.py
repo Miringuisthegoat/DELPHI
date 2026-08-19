@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import logging
 
-from app.models.enums import InjuryStatus, Position
+from enums import InjuryStatus, Position
 from app.schemas.fpl_bootstrap import FPLElementType, FPLPlayer, FPLTeam
 from app.schemas.fpl_element_summary import FPLElementHistory
 from app.schemas.fpl_fixtures import FPLFixture

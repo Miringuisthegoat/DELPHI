@@ -8,7 +8,7 @@ own, previously-unused club id for the same reason.
 
 from __future__ import annotations
 
-from app.models.enums import InjuryStatus, Position
+from enums import InjuryStatus, Position
 from app.models.player import Player
 from app.models.prediction import Prediction
 from app.models.squad import SquadPlayer, SquadState

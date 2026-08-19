@@ -26,7 +26,7 @@ session cookie, not just an API key):
 
 from __future__ import annotations
 
-from app.models.enums import ChipType
+from enums import ChipType
 from app.models.squad import SquadState
 
 MAX_FREE_TRANSFERS = 5

@@ -3,6 +3,14 @@
 This is the core historical time series the prediction engine trains on.
 One row is written per player per gameweek and is never overwritten, so the
 full season (and future seasons) of history accumulates over time.
+
+Phase 13: adds the 2025-26-rules "defensive contribution" scoring fields
+(clearances_blocks_interceptions, defensive_contribution, recoveries,
+tackles) - a new points source FPL introduced for DEF/MID players who
+cross a per-gameweek CBIT/tackle threshold. Absent from every earlier
+season's data, these are nullable-with-default-0 so old rows (and any
+source that doesn't provide them) remain valid without a migration
+backfill.
 """
 
 from __future__ import annotations
@@ -52,6 +60,21 @@ class PlayerGameweekStats(TimestampMixin, Base):
     saves: Mapped[int] = mapped_column(Integer, default=0)
     own_goals: Mapped[int] = mapped_column(Integer, default=0)
     penalties_saved: Mapped[int] = mapped_column(Integer, default=0)
+
+    # --- Phase 13: defensive contribution (2025-26 scoring rules) --------------
+    clearances_blocks_interceptions: Mapped[int] = mapped_column(Integer, default=0)
+    tackles: Mapped[int] = mapped_column(Integer, default=0)
+    recoveries: Mapped[int] = mapped_column(Integer, default=0)
+    defensive_contribution: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        doc=(
+            "FPL's own points-eligibility indicator for the CBIT/tackle "
+            "threshold (DEF: 10+, MID/FWD: 12+ combined actions = 2 bonus "
+            "pts). Stored as provided by the source rather than "
+            "recomputed, since FPL may tune the threshold between seasons."
+        ),
+    )
 
     # --- Discipline -----------------------------------------------------------
     yellow_cards: Mapped[int] = mapped_column(Integer, default=0)

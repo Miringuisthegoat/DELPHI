@@ -36,7 +36,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import OptimizationError
-from app.models.enums import InjuryStatus, Position
+from enums import InjuryStatus, Position
 from app.models.fixture import Fixture
 from app.models.player import Player
 from app.models.prediction import Prediction

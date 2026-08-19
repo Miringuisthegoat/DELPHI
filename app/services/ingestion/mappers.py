@@ -7,6 +7,10 @@ about without a database in the loop. Each function returns a plain
 ``dict`` of column values rather than an ORM instance, so callers can
 choose whether to construct a new row or update an existing one with the
 same values (the "upsert" decision belongs to the service layer, not here).
+
+Phase 13: `map_history_row` and `map_live_element` now also carry through
+the four "defensive contribution" fields (2025-26+ scoring rules) added
+to `FPLElementHistory`/`FPLLiveStats` and to `PlayerGameweekStats`.
 """
 
 from __future__ import annotations
@@ -174,6 +178,11 @@ def map_history_row(player_id: int, row: FPLElementHistory) -> dict[str, object]
     are left at 0.0 here rather than guessed; a future enrichment pass can
     backfill `ownership_percent` from the total number of managers in that
     gameweek if this ever becomes decision-relevant.
+
+    Phase 13: `clearances_blocks_interceptions`/`tackles`/`recoveries`/
+    `defensive_contribution` are carried through as-is; they default to 0
+    on `FPLElementHistory` for gameweeks before the 2025-26 rule existed,
+    so no special-casing is needed here.
     """
     started = bool(row.starts) if row.starts is not None else row.minutes > 0
 
@@ -207,6 +216,10 @@ def map_history_row(player_id: int, row: FPLElementHistory) -> dict[str, object]
         "influence": _safe_float(row.influence),
         "creativity": _safe_float(row.creativity),
         "threat": _safe_float(row.threat),
+        "clearances_blocks_interceptions": row.clearances_blocks_interceptions,
+        "tackles": row.tackles,
+        "recoveries": row.recoveries,
+        "defensive_contribution": row.defensive_contribution,
     }
 
 
@@ -228,6 +241,9 @@ def map_live_element(
 
     `fixture_id` is intentionally omitted (set by the caller if known):
     the live payload doesn't include per-element fixture ids directly.
+
+    Phase 13: defensive-contribution fields are carried through from
+    `element.stats` the same way every other live stat is.
     """
     stats = element.stats
     return {
@@ -254,4 +270,8 @@ def map_live_element(
         "influence": _safe_float(stats.influence),
         "creativity": _safe_float(stats.creativity),
         "threat": _safe_float(stats.threat),
+        "clearances_blocks_interceptions": stats.clearances_blocks_interceptions,
+        "tackles": stats.tackles,
+        "recoveries": stats.recoveries,
+        "defensive_contribution": stats.defensive_contribution,
     }

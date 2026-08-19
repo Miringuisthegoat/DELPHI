@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from app.models.enums import InjuryStatus, Position
+from enums import InjuryStatus, Position
 from app.models.fixture import Fixture
 from app.models.player import Player
 from app.models.prediction import Prediction

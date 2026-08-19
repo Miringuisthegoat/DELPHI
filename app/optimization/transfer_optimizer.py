@@ -50,7 +50,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import OptimizationError
-from app.models.enums import Position
+from enums import Position
 from app.models.player import Player
 from app.models.prediction import Prediction
 from app.models.squad import SquadState

@@ -16,7 +16,7 @@ throwaway in-memory SQLite `db_session` fixture every other test uses.
 
 from __future__ import annotations
 
-from app.models.enums import InjuryStatus, Position
+from enums import InjuryStatus, Position
 from app.models.fixture import Fixture
 from app.models.player import Player
 from app.models.player_stats import PlayerGameweekStats

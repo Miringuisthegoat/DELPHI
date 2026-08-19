@@ -23,7 +23,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.logging import configure_logging
 from app.db.base import Base
-from app.models.enums import InjuryStatus, Position
+from enums import InjuryStatus, Position
 from app.models.player import Player
 from app.models.prediction import Prediction
 from app.models.squad import SquadPlayer, SquadState

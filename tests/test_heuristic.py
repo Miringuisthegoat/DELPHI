@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from app.ml.features import FeatureVector
 from app.ml.heuristic import HeuristicPredictor
-from app.models.enums import Position
+from enums import Position
 
 
 def _vector(**overrides) -> FeatureVector:

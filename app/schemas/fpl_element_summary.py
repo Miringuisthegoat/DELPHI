@@ -4,6 +4,12 @@ This is the endpoint we'll call once per player of interest (not for
 all 600+ players every gameweek — see the client's docstring for the
 concurrency/backoff approach this requires) to get that player's
 gameweek-by-gameweek history plus upcoming fixtures.
+
+Phase 13: adds the four "defensive contribution" fields FPL introduced
+for the 2025-26 season (``clearances_blocks_interceptions``, ``tackles``,
+``recoveries``, ``defensive_contribution``). All default to 0 so history
+rows from before this rule existed (or any payload that omits them)
+still validate.
 """
 
 from __future__ import annotations
@@ -59,6 +65,16 @@ class FPLElementHistory(BaseModel):
     selected: int = 0
     transfers_in: int = 0
     transfers_out: int = 0
+
+    # --- Phase 13: defensive contribution (2025-26+ scoring rules) -------
+    clearances_blocks_interceptions: int = 0
+    tackles: int = 0
+    recoveries: int = 0
+    defensive_contribution: int = 0
+    """FPL's own indicator of whether this gameweek crossed the CBIT/
+    tackle threshold for bonus defensive points. 0 for gameweeks before
+    the rule existed - the FPL API itself won't send this field for old
+    seasons, so the default correctly reflects "not applicable"."""
 
 
 class FPLElementHistoryPast(BaseModel):

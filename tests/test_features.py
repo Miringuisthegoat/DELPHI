@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from app.ml.features import FEATURE_NAMES, PlayerFeatureBuilder
-from app.models.enums import InjuryStatus, Position
+from enums import InjuryStatus, Position
 from app.models.fixture import Fixture
 from app.models.player import Player
 from app.models.player_stats import PlayerGameweekStats

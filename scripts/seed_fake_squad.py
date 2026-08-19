@@ -29,7 +29,7 @@ from sqlalchemy.orm import Session
 
 from app.core.logging import configure_logging
 from app.db.session import init_db, session_scope
-from app.models.enums import Position
+from enums import Position
 from app.models.player import Player
 from app.models.squad import SquadPlayer, SquadState
 

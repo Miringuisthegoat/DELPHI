@@ -9,7 +9,7 @@ used by every other phase's tests (see `tests/conftest.py`).
 
 from __future__ import annotations
 
-from app.models.enums import InjuryStatus, Position
+from enums import InjuryStatus, Position
 from app.models.player import Player
 from app.models.squad import SquadState
 from app.models.team import Team

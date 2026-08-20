@@ -10,3 +10,14 @@
 2026-08-19 18:14:53.608 | INFO     | app.ml.training:train:257 - DELPHI training complete: MAE=1.75 RMSE=2.71 R2=0.13 (train=39777, test=9945, historical_rows=49722)
 2026-08-19 18:14:53.792 | INFO     | __main__:main:30 - DELPHI trained: MAE=1.745 RMSE=2.712 R2=0.13 -> saved to data\processed\models\delphi_rf_v1.0.0.joblib
 2026-08-19 18:14:53.793 | INFO     | __main__:main:37 - Top features: {'price_millions': 0.5644816852415182, 'ownership_percent': 0.3260877051019042, 'is_def': 0.0320140880628421, 'expected_minutes_probability': 0.02379362104004377, 'is_fwd': 0.018720238847219184}
+2026-08-20 12:13:42.175 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-20 12:13:42.193 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-20 12:14:38.561 | INFO     | app.ml.training:build_training_data:131 - Training data assembled: 0 live-season examples, 49227 historical examples (49227 total)
+2026-08-20 12:20:12.711 | INFO     | app.core.logging:configure_logging:43 - Logging configured for env='development' level='INFO'
+2026-08-20 12:20:12.726 | INFO     | app.db.session:init_db:60 - Database schema ensured at sqlite:///./data/fpl_oracle.db
+2026-08-20 12:21:26.653 | INFO     | app.ml.training:build_training_data:131 - Training data assembled: 0 live-season examples, 49227 historical examples (49227 total)
+2026-08-20 12:22:09.972 | INFO     | app.ml.model:fit:120 - RandomForestPointsPredictor fitted on 39381 samples, 37 features
+2026-08-20 12:22:11.345 | INFO     | app.ml.model:save:174 - Saved delphi_rf to data\processed\models\delphi_rf_v1.0.0.joblib
+2026-08-20 12:22:11.348 | INFO     | app.ml.training:train:390 - DELPHI training complete: MAE=1.53 RMSE=2.48 R2=0.25 (train=39381, test=9846)
+2026-08-20 12:22:11.659 | INFO     | __main__:main:30 - DELPHI trained: MAE=1.528 RMSE=2.479 R2=0.247 -> saved to data\processed\models\delphi_rf_v1.0.0.joblib
+2026-08-20 12:22:11.662 | INFO     | __main__:main:37 - Top features: {'minutes_avg_3': 0.3976485525445145, 'form_weighted': 0.18789106101145164, 'price_millions': 0.06850986502318121, 'points_avg_season': 0.0365427477287848, 'minutes_avg_season': 0.03202395956029511}

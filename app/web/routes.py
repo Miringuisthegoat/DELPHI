@@ -179,6 +179,46 @@ async def send_reports_page(gameweek: int) -> RedirectResponse:
 
     return RedirectResponse(url=f"/reports?gameweek={gameweek}", status_code=303)
 
+@router.post("/dashboard/sync-squad/{gameweek}")
+async def sync_squad_from_dashboard(gameweek: int) -> RedirectResponse:
+    """Sync 'My Squad' for `gameweek`, then bounce back to the dashboard.
+
+    Mirrors `POST /api/v1/squad/sync/{gameweek}` (the JSON API route) but
+    is a plain form target for the dashboard's Sync button, so no JS is
+    required. Errors are caught and surfaced via a query param rather
+    than a raw 4xx/5xx page, since this is a user-facing button, not an
+    API client.
+    """
+    if settings.fpl_team_id is None:
+        return RedirectResponse(
+            url=f"/dashboard?gameweek={gameweek}&sync_error="
+            "FPL_TEAM_ID+is+not+configured",
+            status_code=303,
+        )
+
+    async with FPLAPIClient() as client:
+        try:
+            picks_payload = await client.get_entry_event_picks(
+                entry_id=settings.fpl_team_id, event_id=gameweek
+            )
+        except FPLAPIError as exc:
+            logger.warning(
+                "Dashboard squad sync failed for gw %s: %s", gameweek, exc
+            )
+            return RedirectResponse(
+                url=f"/dashboard?gameweek={gameweek}&sync_error={exc}",
+                status_code=303,
+            )
+
+    with session_scope() as db:
+        from app.services.squad import SquadSyncService
+
+        SquadSyncService().sync_from_fpl_payloads(
+            db, gameweek=gameweek, picks_payload=picks_payload
+        )
+
+    return RedirectResponse(url=f"/dashboard?gameweek={gameweek}", status_code=303)
+
 
 @router.get("/menu", response_class=HTMLResponse)
 async def read_menu_page(request: Request) -> HTMLResponse:

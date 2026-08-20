@@ -34,6 +34,9 @@
     <div class="panel-header"><h2>No Squad Synced</h2></div>
     <div class="panel-body">
       <div class="empty-state">{{ view.optimization_error }}</div>
+      <form method="post" action="/dashboard/sync-squad/{{ view.gameweek }}" style="margin-top: 16px;">
+        <button class="btn" type="submit">Sync My Squad (GW {{ view.gameweek }})</button>
+      </form>
     </div>
   </div>
 

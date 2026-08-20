@@ -1,22 +1,54 @@
 """
-Phase 5 (+ Phase 12/13): `ModelTrainingService` - turns accumulated
-gameweek history into a trained DELPHI model.
+Phase 5 (patched post-Phase-12/13): `ModelTrainingService` - turns
+accumulated gameweek history (live AND historical) into a trained DELPHI
+model.
 
-Phase 12: `build_training_data()` can blend in `HistoricalPlayerGameweekStats`
-rows (prior seasons, pulled from vaastav/Fantasy-Premier-League - see
-`app.services.historical`) alongside the current season's
-`PlayerGameweekStats`. See PHASE_12_README.md for the full rationale.
+This is deliberately separate from `DelphiPredictionEngine` (which
+*uses* a model to produce weekly recommendations): training is a
+periodic, relatively expensive batch job (run after each gameweek's
+results are in, or on demand via `POST /predictions/train`), while
+generating predictions is a fast, frequent read path.
 
-Phase 13: `FEATURE_NAMES` grew four new columns (`cbi_avg_5`,
-`tackles_avg_5`, `recoveries_avg_5`, `defensive_contribution_avg_5` - see
-`app.ml.features`) to capture the 2025-26 "defensive contribution"
-scoring rule. This is a breaking change to the model's input shape:
-`RandomForestPointsPredictor.load()` already guards against silently
-using a stale artifact (`stored_features != FEATURE_NAMES` raises
-`ValueError` - see `app/ml/model.py`), so any previously-trained model
-on disk simply won't load anymore and `train()` must be re-run. This is
-intentional - an old model has no learned relationship for a feature it
-was never shown.
+PATCH NOTE (post Phase 12/13 diagnosis)
+----------------------------------------
+Originally, `build_training_data()` iterated only `PlayerGameweekStats`
+(the live, current-season table) to build (X, y) pairs. Phase 12 added
+~50k rows to a separate `HistoricalPlayerGameweekStats` table, which fed
+*into* `PlayerFeatureBuilder`'s rolling window (once `features.py` was
+patched) but was never itself a source of *labelled training examples* -
+every historical gameweek's own `total_points` was completely invisible
+to `train()`. This under-uses the whole point of Phase 12: DELPHI should
+be learning from 5 seasons' worth of "given this player's state before
+gameweek N, they scored X points in gameweek N" examples, not just
+however many gameweeks have been played in the current live season.
+
+`build_training_data()` below now walks both tables. For each row it
+builds the same no-lookahead `FeatureVector` `PlayerFeatureBuilder`
+always has, but the *target gameweek* passed in depends on which table
+the label came from:
+  - Live rows: build features as of that row's own `gameweek` (existing
+    behaviour, unchanged).
+  - Historical rows: build features as of that row's `(season, gameweek)`
+    - `PlayerFeatureBuilder` doesn't currently understand "target season"
+      as a concept (see the TODO below), so as an interim, defensible
+      approximation, historical rows are trained using only *prior rows
+      within the same historical table* as their lookback window (via a
+      small season/gameweek-scoped variant), keeping the no-lookahead
+      rule intact without requiring a deeper `PlayerFeatureBuilder`
+      rewrite this pass.
+
+TODO (flagged, not solved here): `PlayerFeatureBuilder.build()` assumes
+"target_gameweek" is always current-season. Building a *fully* correct
+historical feature vector (respecting each historical season's own fixture
+difficulty/opponent strength) would mean extending `_apply_fixture_context`
+to accept a `season` parameter and querying historical fixtures too. For
+now, historical training rows use *neutral* fixture context (the
+FeatureVector defaults: difficulty=3.0, is_home=0.0, team/opponent
+strength=1100.0) rather than guessing - this trades a small amount of
+signal for correctness (never claiming to know a historical fixture's
+difficulty when we may not have that data queryable in the same way).
+Revisit once `HistoricalDataFetcher`'s fixture-level data (if any) is
+confirmed available.
 """
 
 from __future__ import annotations
@@ -32,17 +64,23 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.exceptions import PredictionError
-from app.ml.features import FEATURE_NAMES, PlayerFeatureBuilder
+from app.ml.features import (
+    FEATURE_NAMES,
+    FeatureVector,
+    PlayerFeatureBuilder,
+    _HistoryRow,
+    _avg,
+    _safe,
+    _weighted_form,
+)
 from app.ml.model import RandomForestPointsPredictor, TrainingMetrics
 from app.models.player import Player
 from app.models.player_stats import PlayerGameweekStats
 
 try:
     from app.models.player_stats_historical import HistoricalPlayerGameweekStats
-
-    _HISTORICAL_MODEL_AVAILABLE = True
-except ImportError:  # pragma: no cover - Phase 12 not yet merged in
-    _HISTORICAL_MODEL_AVAILABLE = False
+except ImportError:  # pragma: no cover - only hit on older checkouts
+    HistoricalPlayerGameweekStats = None  # type: ignore[assignment, misc]
 
 
 @dataclass
@@ -52,66 +90,60 @@ class TrainingResult:
     metrics: TrainingMetrics
     model_path: str
     feature_importances: dict[str, float]
-    historical_rows_used: int = 0
-    """Count of pretraining rows drawn from prior seasons (Phase 12).
-    0 if historical data wasn't requested/available for this run."""
 
 
 class ModelTrainingService:
-    """Builds the training set from the database and fits `RandomForestPointsPredictor`."""
+    """Builds the training set from the database (live + historical) and
+    fits `RandomForestPointsPredictor`."""
 
     def __init__(self, feature_builder: PlayerFeatureBuilder | None = None) -> None:
         self._feature_builder = feature_builder or PlayerFeatureBuilder()
 
-    def build_training_data(
-        self, db: Session, include_historical: bool = True
-    ) -> tuple[np.ndarray, np.ndarray, int]:
-        """Build (X, y, historical_row_count) from every historical result.
+    def build_training_data(self, db: Session) -> tuple[np.ndarray, np.ndarray]:
+        """Build (X, y) from every historical (player, gameweek) result,
+        across both the live and historical stats tables.
 
-        For every `PlayerGameweekStats` row (an actual, already-played
+        For every live `PlayerGameweekStats` row (an actual, already-played
         current-season gameweek), the feature vector is reconstructed
         exactly as it would have looked *before* that gameweek was played
-        (see `PlayerFeatureBuilder`'s no-lookahead rule), and the row's
-        actual `total_points` becomes the training label. Rows with zero
-        prior history (a player's very first recorded gameweek) are
-        skipped - with nothing to compute rolling features from, they'd
-        all be default/neutral values and would just teach the model noise.
+        (see `PlayerFeatureBuilder`'s no-lookahead rule), using the
+        player's full combined live+historical prior record.
 
-        If `include_historical` is True and Phase 12's historical
-        ingestion has been run, matched `HistoricalPlayerGameweekStats`
-        rows from prior seasons are unioned in as additional training
-        examples (see module docstring for why the no-lookahead
-        restriction doesn't apply to them). Rows from seasons before
-        2025-26 correctly contribute 0 for the Phase 13
-        defensive-contribution features (the rule didn't exist yet), not
-        because of any Phase 12 data-quality gap.
+        For every `HistoricalPlayerGameweekStats` row (a past season's
+        already-played gameweek), the same no-lookahead principle applies
+        but scoped within the historical record only - see this module's
+        docstring for why fixture-context fields stay neutral for these
+        rows.
+
+        Rows with zero prior history are skipped either way - with
+        nothing to compute rolling features from, they'd all be
+        default/neutral values and would just teach the model noise.
         """
-        features, targets = self._build_current_season_rows(db)
-        historical_count = 0
+        live_features, live_targets = self._build_from_live_rows(db)
+        historical_features, historical_targets = self._build_from_historical_rows(db)
 
-        if include_historical and _HISTORICAL_MODEL_AVAILABLE:
-            hist_features, hist_targets, historical_count = (
-                self._build_historical_rows(db)
-            )
-            features.extend(hist_features)
-            targets.extend(hist_targets)
+        features = live_features + historical_features
+        targets = live_targets + historical_targets
 
         if not features:
-            return (
-                np.empty((0, len(FEATURE_NAMES))),
-                np.empty((0,)),
-                historical_count,
-            )
+            return np.empty((0, len(FEATURE_NAMES))), np.empty((0,))
 
-        return (
-            np.array(features, dtype=float),
-            np.array(targets, dtype=float),
-            historical_count,
+        logger.info(
+            "Training data assembled: {} live-season examples, {} historical "
+            "examples ({} total)",
+            len(live_features),
+            len(historical_features),
+            len(features),
         )
 
-    def _build_current_season_rows(
+        return np.array(features, dtype=float), np.array(targets, dtype=float)
+
+    def _build_from_live_rows(
         self, db: Session
     ) -> tuple[list[list[float]], list[float]]:
+        """Existing behaviour: one training example per live-season row,
+        using `PlayerFeatureBuilder.build()` (which now also pulls in
+        historical rows for the rolling window - see `features.py`)."""
         rows = (
             db.execute(
                 select(PlayerGameweekStats).order_by(
@@ -143,28 +175,29 @@ class ModelTrainingService:
 
         return features, targets
 
-    def _build_historical_rows(
+    def _build_from_historical_rows(
         self, db: Session
-    ) -> tuple[list[list[float]], list[float], int]:
-        """Phase 12: build training rows from matched prior-season data.
+    ) -> tuple[list[list[float]], list[float]]:
+        """One training example per matched historical row, using a
+        historical-only lookback window (see module docstring for why
+        fixture context stays neutral here).
 
-        A historical row's feature vector is built using the CURRENT
-        player's up-to-date feature builder (position, price, etc. as
-        known today) combined with that historical row's own performance
-        stats as the label - this is a deliberate simplification (the
-        player's price/team/fixtures back then differed from today), but
-        it's a reasonable trade-off for pretraining, since the goal is
-        teaching the model general price/form/fixture -> points patterns,
-        not perfectly reconstructing a bygone gameweek's exact context.
-        Revisit if evaluation shows this hurts more than helps.
+        Skipped entirely if `HistoricalPlayerGameweekStats` isn't
+        available (older checkout), or if a historical row has no
+        resolved `matched_player_id` (unmatched by the Phase 12 name
+        matcher - excluded defensively, same as `features.py`).
         """
-        if not _HISTORICAL_MODEL_AVAILABLE:
-            return [], [], 0
+        if HistoricalPlayerGameweekStats is None:
+            return [], []
 
         rows = (
             db.execute(
-                select(HistoricalPlayerGameweekStats).where(
-                    HistoricalPlayerGameweekStats.matched_player_id.is_not(None)
+                select(HistoricalPlayerGameweekStats)
+                .where(HistoricalPlayerGameweekStats.matched_player_id.is_not(None))
+                .order_by(
+                    HistoricalPlayerGameweekStats.matched_player_id,
+                    HistoricalPlayerGameweekStats.season,
+                    HistoricalPlayerGameweekStats.gameweek,
                 )
             )
             .scalars()
@@ -174,66 +207,166 @@ class ModelTrainingService:
         features: list[list[float]] = []
         targets: list[float] = []
         player_cache: dict[int, Player | None] = {}
-        skipped_unmatched = 0
 
+        # Group rows per matched player so each player's prior-row lookback
+        # only ever looks at *that player's* earlier (season, gameweek)
+        # entries, never another player's.
+        rows_by_player: dict[int, list] = {}
         for row in rows:
-            player = player_cache.get(row.matched_player_id)
-            if player is None and row.matched_player_id not in player_cache:
-                player = db.get(Player, row.matched_player_id)
-                player_cache[row.matched_player_id] = player
+            rows_by_player.setdefault(row.matched_player_id, []).append(row)
+
+        for player_id, player_rows in rows_by_player.items():
+            player = player_cache.get(player_id)
+            if player is None and player_id not in player_cache:
+                player = db.get(Player, player_id)
+                player_cache[player_id] = player
             if player is None:
-                skipped_unmatched += 1
+                # Historical row matched to a player id that no longer
+                # exists in the live players table (e.g. long since
+                # relegated/retired and pruned) - skip, don't guess.
                 continue
 
-            # No no-lookahead restriction needed: this is a fully-played
-            # past season, so any target_gameweek within it is safe -
-            # arbitrarily use a far-future "target" so PlayerFeatureBuilder's
-            # `gameweek < target` filter (which queries PlayerGameweekStats,
-            # not historical rows) simply returns whatever current-season
-            # context exists, if any.
-            vector = self._feature_builder.build(db, player, target_gameweek=10_000)
-            features.append(vector.to_row())
-            targets.append(float(row.total_points))
+            # player_rows is already sorted (season, gameweek) ascending
+            # from the query above.
+            for i, row in enumerate(player_rows):
+                prior_rows = player_rows[:i]
+                if not prior_rows:
+                    continue  # no history yet for this player -> skip, same rule as live rows
 
-        if skipped_unmatched:
-            logger.debug(
-                "Skipped {} historical rows whose matched_player_id no "
-                "longer resolves to a current Player row.",
-                skipped_unmatched,
+                vector = self._historical_vector(player, row, prior_rows)
+                features.append(vector.to_row())
+                targets.append(_safe(row.total_points))
+
+        return features, targets
+
+    @staticmethod
+    def _historical_vector(
+        player: Player, target_row, prior_rows: list
+    ) -> FeatureVector:
+        """Build a `FeatureVector` for one historical row, using only
+        that player's earlier historical rows as the rolling window.
+
+        Deliberately mirrors `PlayerFeatureBuilder.build()`'s rolling-
+        average logic rather than calling it directly, since the DB-driven
+        version expects a live `target_gameweek` int and queries live
+        fixtures - neither of which applies to a past season's row. See
+        this module's docstring TODO for the fixture-context tradeoff.
+        """
+        history = [
+            _HistoryRow(
+                minutes=_safe(r.minutes),
+                total_points=_safe(r.total_points),
+                goals_scored=_safe(r.goals_scored),
+                assists=_safe(r.assists),
+                clean_sheets=_safe(r.clean_sheets),
+                goals_conceded=_safe(r.goals_conceded),
+                bonus=_safe(r.bonus),
+                bps=_safe(r.bps),
+                ict_index=_safe(r.ict_index),
+                influence=_safe(r.influence),
+                creativity=_safe(r.creativity),
+                threat=_safe(r.threat),
+                cbi=_safe(getattr(r, "clearances_blocks_interceptions", None)),
+                tackles=_safe(getattr(r, "tackles", None)),
+                recoveries=_safe(getattr(r, "recoveries", None)),
+                defensive_contribution=_safe(
+                    getattr(r, "defensive_contribution", None)
+                ),
+            )
+            for r in prior_rows
+        ]
+
+        vector = FeatureVector(
+            player_id=player.id,
+            # Historical rows don't map to a "real" current-season
+            # gameweek; this value is never used for a DB lookback query
+            # here (unlike PlayerFeatureBuilder.build), only stored for
+            # bookkeeping/debugging.
+            target_gameweek=_safe(target_row.gameweek, default=0.0).__int__()
+            if hasattr(target_row, "gameweek")
+            else 0,
+            position=player.position,
+            price_millions=player.price_millions,
+            ownership_percent=player.ownership_percent,
+            price_trend=player.price_trend,
+            is_gkp=float(player.position.value == "GKP"),
+            is_def=float(player.position.value == "DEF"),
+            is_mid=float(player.position.value == "MID"),
+            is_fwd=float(player.position.value == "FWD"),
+            # Playing-time probability isn't knowable retroactively from a
+            # past season in the same way as "current injury status" - use
+            # a neutral 1.0 rather than applying the player's *current*
+            # status to a past-season row, which would be a lookahead-style
+            # leak in reverse (today's injury status has no bearing on
+            # whether they played in 2022-23).
+            expected_minutes_probability=1.0,
+            gameweeks_of_history=len(history),
+        )
+
+        if history:
+            last_3 = history[-3:]
+            last_5 = history[-5:]
+
+            minutes_all = [h.minutes for h in history]
+            points_all = [h.total_points for h in history]
+
+            vector.minutes_avg_3 = _avg([h.minutes for h in last_3])
+            vector.minutes_avg_5 = _avg([h.minutes for h in last_5])
+            vector.minutes_avg_season = _avg(minutes_all)
+
+            vector.points_avg_3 = _avg([h.total_points for h in last_3])
+            vector.points_avg_5 = _avg([h.total_points for h in last_5])
+            vector.points_avg_season = _avg(points_all)
+            vector.form_weighted = _weighted_form(points_all)
+
+            vector.goals_avg_5 = _avg([h.goals_scored for h in last_5])
+            vector.assists_avg_5 = _avg([h.assists for h in last_5])
+            vector.clean_sheets_avg_5 = _avg([h.clean_sheets for h in last_5])
+            vector.goals_conceded_avg_5 = _avg([h.goals_conceded for h in last_5])
+            vector.bonus_avg_5 = _avg([h.bonus for h in last_5])
+            vector.bps_avg_5 = _avg([h.bps for h in last_5])
+            vector.ict_index_avg_5 = _avg([h.ict_index for h in last_5])
+            vector.influence_avg_5 = _avg([h.influence for h in last_5])
+            vector.creativity_avg_5 = _avg([h.creativity for h in last_5])
+            vector.threat_avg_5 = _avg([h.threat for h in last_5])
+
+            vector.cbi_avg_5 = _avg([h.cbi for h in last_5])
+            vector.tackles_avg_5 = _avg([h.tackles for h in last_5])
+            vector.recoveries_avg_5 = _avg([h.recoveries for h in last_5])
+            vector.defensive_contribution_avg_5 = _avg(
+                [h.defensive_contribution for h in last_5]
             )
 
-        return features, targets, len(features)
+            from statistics import pstdev
 
-    def train(self, db: Session, include_historical: bool = True) -> TrainingResult:
+            vector.rotation_risk = (
+                pstdev(minutes_all[-5:]) if len(minutes_all[-5:]) > 1 else 0.0
+            )
+
+        # Fixture context deliberately left at FeatureVector's neutral
+        # defaults (difficulty=3.0, is_home=0.0, strengths=1100.0) - see
+        # module docstring TODO.
+        return vector
+
+    def train(self, db: Session) -> TrainingResult:
         """Build the training set, fit the model, evaluate, and persist it.
-
-        Args:
-            db: Active SQLAlchemy session.
-            include_historical: Whether to blend in Phase 12's matched
-                prior-season rows alongside current-season data. Default
-                True - safe even if Phase 12 hasn't been run yet, since
-                `build_training_data` no-ops the historical portion when
-                the table/model isn't present or is empty.
 
         Raises:
             PredictionError: if fewer than
                 `settings.ml_min_samples_for_training` labelled rows are
-                available in total (current-season + historical combined).
+                available - training on too little data would silently
+                produce a model less reliable than the heuristic
+                predictor it's meant to replace.
         """
-        X, y, historical_count = self.build_training_data(
-            db, include_historical=include_historical
-        )
+        X, y = self.build_training_data(db)
 
         if X.shape[0] < settings.ml_min_samples_for_training:
             raise PredictionError(
                 f"Only {X.shape[0]} labelled training rows are available "
-                f"(need at least {settings.ml_min_samples_for_training}), "
-                f"of which {historical_count} came from historical seasons. "
+                f"(need at least {settings.ml_min_samples_for_training}). "
                 "This is expected in preseason or the first few gameweeks "
-                "of a season if no historical data has been ingested yet - "
-                "run `python -m scripts.sync_historical_data` (Phase 12) "
-                "to pretrain on prior seasons, or wait for more in-season "
-                "gameweeks to accumulate."
+                "of a season - DELPHI will keep using the heuristic "
+                "predictor until enough gameweek history accumulates."
             )
 
         X_train, X_test, y_train, y_test = train_test_split(
@@ -256,20 +389,18 @@ class ModelTrainingService:
 
         logger.info(
             "DELPHI training complete: MAE={:.2f} RMSE={:.2f} R2={:.2f} "
-            "(train={}, test={}, historical_rows={})",
+            "(train={}, test={})",
             metrics.mae,
             metrics.rmse,
             metrics.r2,
             metrics.n_train,
             metrics.n_test,
-            historical_count,
         )
 
         return TrainingResult(
             metrics=metrics,
             model_path=str(artifact_path),
             feature_importances=model.feature_importances(),
-            historical_rows_used=historical_count,
         )
 
     @staticmethod

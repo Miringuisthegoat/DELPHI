@@ -19,6 +19,28 @@ queries) and just render a different template against it. `/reports`
 reuses `WeeklyReportService` (Phase 9), which itself is a formatter over
 `DashboardService`. `/menu` and `/settings` are static/config pages with
 no gameweek concept.
+
+Dashboard action buttons (added post-Phase-10)
+------------------------------------------------
+Two POST routes let the dashboard trigger backend work without needing
+`/docs` or curl:
+
+* `/dashboard/sync-squad/{gameweek}` - squad sync only. Useful for a
+  quick re-pull after a late transfer, without re-running the full data
+  sync or regenerating predictions.
+* `/dashboard/run-full-sync/{gameweek}` - the full weekly activation
+  sequence in one click: bootstrap+fixtures sync -> squad sync ->
+  generate predictions. Mirrors the same three steps
+  `app.scheduler.full_pipeline_jobs.generate_full_weekly_pipeline` runs
+  automatically, exposed here as a manual trigger. Squad sync failure
+  (e.g. pre-deadline 404, expected before a gameweek's deadline has
+  passed) is non-fatal - the same tolerance the scheduled job already
+  has - but a bootstrap/fixtures sync failure aborts the whole run,
+  since nothing downstream is trustworthy without fresh player data.
+
+Both routes redirect back to `/dashboard` rather than returning JSON,
+and surface any non-fatal issue via a `sync_error` query param so the
+dashboard can display it inline instead of failing silently.
 """
 
 from __future__ import annotations
@@ -32,10 +54,13 @@ from sqlalchemy import select
 
 from app.core.config import settings
 from app.db.session import session_scope
+from app.ml.engine import DelphiPredictionEngine
 from app.models.squad import SquadState
 from app.services.dashboard import DashboardService
 from app.services.fpl_api import FPLAPIClient, FPLAPIError
+from app.services.ingestion import DataIngestionService
 from app.services.reporting import ConsoleDeliveryChannel, WeeklyReportService
+from app.services.squad import SquadSyncService
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -43,6 +68,9 @@ templates = Jinja2Templates(directory="app/templates")
 
 _dashboard_service = DashboardService()
 _report_service = WeeklyReportService()
+_ingestion_service = DataIngestionService()
+_squad_sync_service = SquadSyncService()
+_prediction_engine = DelphiPredictionEngine()
 
 
 def _resolve_default_gameweek(db) -> int:
@@ -179,15 +207,20 @@ async def send_reports_page(gameweek: int) -> RedirectResponse:
 
     return RedirectResponse(url=f"/reports?gameweek={gameweek}", status_code=303)
 
+
 @router.post("/dashboard/sync-squad/{gameweek}")
 async def sync_squad_from_dashboard(gameweek: int) -> RedirectResponse:
-    """Sync 'My Squad' for `gameweek`, then bounce back to the dashboard.
+    """Sync 'My Squad' for `gameweek` only, then bounce back to the dashboard.
 
     Mirrors `POST /api/v1/squad/sync/{gameweek}` (the JSON API route) but
     is a plain form target for the dashboard's Sync button, so no JS is
     required. Errors are caught and surfaced via a query param rather
     than a raw 4xx/5xx page, since this is a user-facing button, not an
     API client.
+
+    Use this for a quick re-pull after a late transfer; use
+    `/dashboard/run-full-sync/{gameweek}` for the full weekly activation
+    sequence (data sync + squad sync + predictions).
     """
     if settings.fpl_team_id is None:
         return RedirectResponse(
@@ -211,13 +244,69 @@ async def sync_squad_from_dashboard(gameweek: int) -> RedirectResponse:
             )
 
     with session_scope() as db:
-        from app.services.squad import SquadSyncService
-
-        SquadSyncService().sync_from_fpl_payloads(
+        _squad_sync_service.sync_from_fpl_payloads(
             db, gameweek=gameweek, picks_payload=picks_payload
         )
 
     return RedirectResponse(url=f"/dashboard?gameweek={gameweek}", status_code=303)
+
+
+@router.post("/dashboard/run-full-sync/{gameweek}")
+async def run_full_sync(gameweek: int) -> RedirectResponse:
+    """One-click weekly activation: full data sync -> squad sync ->
+    generate predictions for `gameweek`, then back to the dashboard.
+
+    Mirrors the same three steps `app.scheduler.full_pipeline_jobs` runs
+    automatically, exposed here as a manual trigger for the dashboard's
+    'Run Full Sync' button. Squad sync failure (e.g. pre-deadline 404,
+    expected before a gameweek's deadline has passed) is non-fatal - the
+    same tolerance `full_pipeline_jobs.py` already has - but a
+    bootstrap/fixtures sync failure aborts the whole run, since nothing
+    downstream is trustworthy without fresh player data.
+    """
+    async with FPLAPIClient() as client:
+        try:
+            bootstrap = await client.get_bootstrap_static()
+            fixtures = await client.get_fixtures()
+        except FPLAPIError as exc:
+            logger.warning("Dashboard full sync: bootstrap fetch failed: %s", exc)
+            return RedirectResponse(
+                url=f"/dashboard?gameweek={gameweek}&sync_error=Data+sync+failed:+{exc}",
+                status_code=303,
+            )
+
+        with session_scope() as db:
+            _ingestion_service.sync_full_bootstrap(db, bootstrap, fixtures)
+
+        squad_warning = ""
+        if settings.fpl_team_id is not None:
+            try:
+                picks_payload = await client.get_entry_event_picks(
+                    entry_id=settings.fpl_team_id, event_id=gameweek
+                )
+                with session_scope() as db:
+                    _squad_sync_service.sync_from_fpl_payloads(
+                        db, gameweek=gameweek, picks_payload=picks_payload
+                    )
+            except FPLAPIError as exc:
+                # Expected before this gameweek's deadline has passed -
+                # non-fatal, matching full_pipeline_jobs.py's tolerance.
+                logger.warning(
+                    "Dashboard full sync: squad sync skipped for gw %s: %s",
+                    gameweek, exc,
+                )
+                squad_warning = f"&sync_error=Squad+not+available+yet:+{exc}"
+        else:
+            squad_warning = "&sync_error=FPL_TEAM_ID+not+configured"
+
+    with session_scope() as db:
+        _prediction_engine.generate_for_gameweek(
+            db, gameweek=gameweek, horizons=settings.ml_default_horizons
+        )
+
+    return RedirectResponse(
+        url=f"/dashboard?gameweek={gameweek}{squad_warning}", status_code=303
+    )
 
 
 @router.get("/menu", response_class=HTMLResponse)
